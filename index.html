@@ -353,7 +353,7 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
           <span class="material-symbols-outlined text-secondary text-[20px]">bar_chart</span>
           <h2 class="font-headline-md text-headline-md font-bold text-on-surface">Evolución de Pedidos y Unidades vs. % Conforme</h2>
         </div>
-        <p class="font-body-sm text-body-sm text-on-surface-variant">Comportamiento por fecha de creación (últimas fechas registradas en el Sheet).</p>
+        <p class="font-body-sm text-body-sm text-on-surface-variant">Por cada fecha: la barra ancha y clara (izquierda) = Unidades; la angosta y azul oscuro (derecha) = Pedidos únicos. El número queda impreso encima de cada una.</p>
       </div>
       <div class="flex flex-wrap items-center gap-space-md">
         <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-surface-container-highest"></span><span class="font-label-sm text-label-sm text-on-surface-variant">Unidades (esc.)</span></div>
@@ -394,31 +394,52 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
         <h3 class="font-headline-md text-headline-md font-bold text-on-surface">Desglose de Estatus</h3>
         <span class="px-space-xs py-0.5 rounded bg-surface-container text-secondary font-label-sm text-label-sm font-semibold">Datos reales</span>
       </div>
-      <p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">Distribución de líneas evaluadas sobre el total filtrado.</p>
-      <div class="flex flex-col gap-space-md">
-        <div class="p-space-md rounded-lg bg-surface-container-low flex flex-col gap-space-xs">
-          <div class="flex justify-between items-center">
-            <div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-on-tertiary-container text-[20px]">check_circle</span><span class="font-label-md text-label-md font-bold text-on-surface">Conforme</span></div>
-            <span class="font-title-sm text-title-sm font-bold text-on-tertiary-container" id="desg-conforme-pct">0%</span>
+      <p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">% de Pedidos únicos (BPCS) y % de Unidades sobre lo evaluado.</p>
+      <div class="flex flex-col gap-space-sm">
+        <div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-space-xs">
+          <div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-on-tertiary-container text-[18px]">check_circle</span><span class="font-label-md text-label-md font-bold text-on-surface">Conforme</span></div>
+          <div class="grid grid-cols-2 gap-space-sm">
+            <div class="flex flex-col gap-0.5">
+              <div class="flex justify-between items-baseline"><span class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wide">Pedidos</span><span class="text-[13px] font-bold text-on-tertiary-container" id="desg-conforme-pedidos-pct">0%</span></div>
+              <div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden"><div class="h-full bg-on-tertiary-container rounded-full" id="desg-conforme-pedidos-bar" style="width:0%"></div></div>
+              <span class="text-[10px] text-on-surface-variant" id="desg-conforme-pedidos-count">0 ped.</span>
+            </div>
+            <div class="flex flex-col gap-0.5">
+              <div class="flex justify-between items-baseline"><span class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wide">Unidades</span><span class="text-[13px] font-bold text-on-tertiary-container" id="desg-conforme-unidades-pct">0%</span></div>
+              <div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden"><div class="h-full bg-on-tertiary-container rounded-full" id="desg-conforme-unidades-bar" style="width:0%"></div></div>
+              <span class="text-[10px] text-on-surface-variant" id="desg-conforme-unidades-count">0 un.</span>
+            </div>
           </div>
-          <div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden"><div class="h-full bg-on-tertiary-container rounded-full" id="desg-conforme-bar" style="width:0%"></div></div>
-          <div class="flex justify-between text-[11px] font-label-sm text-on-surface-variant"><span id="desg-conforme-count">0 líneas</span></div>
         </div>
-        <div class="p-space-md rounded-lg bg-surface-container-low flex flex-col gap-space-xs">
-          <div class="flex justify-between items-center">
-            <div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-error text-[20px]">remove_shopping_cart</span><span class="font-label-md text-label-md font-bold text-on-surface">Faltante</span></div>
-            <span class="font-title-sm text-title-sm font-bold text-error" id="desg-faltante-pct">0%</span>
+        <div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-space-xs">
+          <div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-error text-[18px]">remove_shopping_cart</span><span class="font-label-md text-label-md font-bold text-on-surface">Faltante</span></div>
+          <div class="grid grid-cols-2 gap-space-sm">
+            <div class="flex flex-col gap-0.5">
+              <div class="flex justify-between items-baseline"><span class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wide">Pedidos</span><span class="text-[13px] font-bold text-error" id="desg-faltante-pedidos-pct">0%</span></div>
+              <div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden"><div class="h-full bg-error rounded-full" id="desg-faltante-pedidos-bar" style="width:0%"></div></div>
+              <span class="text-[10px] text-on-surface-variant" id="desg-faltante-pedidos-count">0 ped.</span>
+            </div>
+            <div class="flex flex-col gap-0.5">
+              <div class="flex justify-between items-baseline"><span class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wide">Unidades</span><span class="text-[13px] font-bold text-error" id="desg-faltante-unidades-pct">0%</span></div>
+              <div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden"><div class="h-full bg-error rounded-full" id="desg-faltante-unidades-bar" style="width:0%"></div></div>
+              <span class="text-[10px] text-on-surface-variant" id="desg-faltante-unidades-count">0 un.</span>
+            </div>
           </div>
-          <div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden"><div class="h-full bg-error rounded-full" id="desg-faltante-bar" style="width:0%"></div></div>
-          <div class="flex justify-between text-[11px] font-label-sm text-on-surface-variant"><span id="desg-faltante-count">0 líneas</span></div>
         </div>
-        <div class="p-space-md rounded-lg bg-surface-container-low flex flex-col gap-space-xs">
-          <div class="flex justify-between items-center">
-            <div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-secondary text-[20px]">inventory_2</span><span class="font-label-md text-label-md font-bold text-on-surface">Sobrante</span></div>
-            <span class="font-title-sm text-title-sm font-bold text-secondary" id="desg-sobrante-pct">0%</span>
+        <div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-space-xs">
+          <div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-secondary text-[18px]">inventory_2</span><span class="font-label-md text-label-md font-bold text-on-surface">Sobrante</span></div>
+          <div class="grid grid-cols-2 gap-space-sm">
+            <div class="flex flex-col gap-0.5">
+              <div class="flex justify-between items-baseline"><span class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wide">Pedidos</span><span class="text-[13px] font-bold text-secondary" id="desg-sobrante-pedidos-pct">0%</span></div>
+              <div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden"><div class="h-full bg-secondary rounded-full" id="desg-sobrante-pedidos-bar" style="width:0%"></div></div>
+              <span class="text-[10px] text-on-surface-variant" id="desg-sobrante-pedidos-count">0 ped.</span>
+            </div>
+            <div class="flex flex-col gap-0.5">
+              <div class="flex justify-between items-baseline"><span class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wide">Unidades</span><span class="text-[13px] font-bold text-secondary" id="desg-sobrante-unidades-pct">0%</span></div>
+              <div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden"><div class="h-full bg-secondary rounded-full" id="desg-sobrante-unidades-bar" style="width:0%"></div></div>
+              <span class="text-[10px] text-on-surface-variant" id="desg-sobrante-unidades-count">0 un.</span>
+            </div>
           </div>
-          <div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden"><div class="h-full bg-secondary rounded-full" id="desg-sobrante-bar" style="width:0%"></div></div>
-          <div class="flex justify-between text-[11px] font-label-sm text-on-surface-variant"><span id="desg-sobrante-count">0 líneas</span></div>
         </div>
       </div>
     </div>
@@ -483,10 +504,10 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
           <th class="py-space-md px-space-md font-bold w-10"><input type="checkbox" id="select-all-rows" title="Seleccionar todos los pedidos filtrados"></th>
           <th class="py-space-md px-space-md font-bold">Fecha Creación / Bodega</th>
           <th class="py-space-md px-space-md font-bold">BPCS / Documento</th>
-          <th class="py-space-md px-space-md font-bold">Código - EAN / Descripción</th>
+          <th class="py-space-md px-space-md font-bold">Destinatario</th>
+          <th class="py-space-md px-space-md font-bold text-right">Líneas</th>
           <th class="py-space-md px-space-md font-bold text-right">Unidades</th>
           <th class="py-space-md px-space-md font-bold text-center">Estatus</th>
-          <th class="py-space-md px-space-md font-bold">Observación / Personal</th>
           <th class="py-space-md px-space-md font-bold text-right">Acción</th>
         </tr>
       </thead>
@@ -610,6 +631,34 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
   </div>
 </div>
 
+<!-- ============================ DRAWER: DETALLE DE PEDIDO ============================ -->
+<div id="order-drawer-overlay" class="fixed inset-0 z-[90] hidden bg-black/40"></div>
+<div id="order-drawer" class="fixed top-0 right-0 z-[95] h-full w-full sm:w-[720px] bg-surface-container-lowest shadow-2xl translate-x-full transition-transform duration-300 flex flex-col">
+  <div class="p-space-lg border-b border-outline-variant/30 flex items-center justify-between shrink-0">
+    <div class="flex flex-col">
+      <span class="font-headline-md text-headline-md font-bold text-on-surface" id="drawer-title">Pedido #--</span>
+      <span class="font-body-sm text-body-sm text-on-surface-variant" id="drawer-subtitle">--</span>
+    </div>
+    <button id="drawer-close-btn" class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" type="button">
+      <span class="material-symbols-outlined text-[22px]">close</span>
+    </button>
+  </div>
+  <div class="flex-1 overflow-y-auto">
+    <table class="w-full text-left border-collapse">
+      <thead class="sticky top-0 bg-surface-container-high z-10">
+        <tr class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+          <th class="py-space-sm px-space-md font-bold">Código - EAN / Descripción</th>
+          <th class="py-space-sm px-space-md font-bold text-right">Unidades</th>
+          <th class="py-space-sm px-space-md font-bold text-center">Estatus</th>
+          <th class="py-space-sm px-space-md font-bold">Observación / Personal</th>
+          <th class="py-space-sm px-space-md font-bold text-right">Acción</th>
+        </tr>
+      </thead>
+      <tbody id="drawer-tbody" class="divide-y divide-surface-container-low font-body-sm text-body-sm text-on-surface"></tbody>
+    </table>
+  </div>
+</div>
+
 <!-- ============================ TOAST FLOTANTE ============================ -->
 <div id="live-toast" class="fixed bottom-6 right-6 z-[110] transform translate-y-16 opacity-0 transition-all duration-300 pointer-events-none">
   <div class="flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary rounded-xl shadow-xl border border-secondary-container/20">
@@ -634,8 +683,30 @@ const CONFIG = {
   META_CONFORME: 95    // % meta de conformidad, usado en el gráfico y la tarjeta KPI
 };
 
-const COLS = ["ID_PEDIDO","FECHA_CREACION","PEDIDO_BPCS","BODEGA","DOCUMENTO","CODIGO","DESCRIPCION","UNIDADES","EAN13",
-  "ESTATUS","FECHA","OBSERVACION","CANTIDAD_OBSERVADA","FECHA_RESPUESTA","RESPUESTA_DESPACHO","PERSONAL_REPORTA","FECHA_ALMACEN","RESPUESTA_ALMACEN","ACCIONES_TOMADAS"];
+// Mapea el TEXTO EXACTO del encabezado en el Sheet -> clave interna que usa el dashboard.
+// Si agregas una columna nueva al Sheet, agrégala aquí también (en cualquier posición).
+const HEADER_MAP = {
+  "ID_PEDIDO": "ID_PEDIDO",
+  "FECHA DE CREACION": "FECHA_CREACION",
+  "PEDIDO BPCS": "PEDIDO_BPCS",
+  "BODEGA": "BODEGA",
+  "DOCUMENTO": "DOCUMENTO",
+  "DESTINATARIO": "DESTINATARIO",
+  "CODIGO": "CODIGO",
+  "DESCRIPCION": "DESCRIPCION",
+  "UNIDADES": "UNIDADES",
+  "EAN 13": "EAN13",
+  "ESTATUS": "ESTATUS",
+  "FECHA": "FECHA",
+  "OBSERVACION": "OBSERVACION",
+  "CANTIDAD OBSERVADA": "CANTIDAD_OBSERVADA",
+  "FECHA DE RESPUESTA": "FECHA_RESPUESTA",
+  "RESPUESTA DESPACHO": "RESPUESTA_DESPACHO",
+  "PERSONAL QUE REPORTA": "PERSONAL_REPORTA",
+  "FECHA ALMACEN": "FECHA_ALMACEN",
+  "RESPUESTA DE ALMACEN": "RESPUESTA_ALMACEN",
+  "ACCIONES TOMADAS": "ACCIONES_TOMADAS"
+};
 
 let ROWS = [];
 let currentEditRow = null;
@@ -736,10 +807,23 @@ async function loadData() {
     if (!res.ok) throw new Error("HTTP " + res.status);
     const text = await res.text();
     const rawRows = parseCSV(text);
+    const headerRowRaw = rawRows[0] || [];
+    const colIndexByKey = {};
+    headerRowRaw.forEach((h, i) => {
+      const key = HEADER_MAP[String(h).trim().toUpperCase()];
+      if (key) colIndexByKey[key] = i;
+    });
+    const missing = Object.values(HEADER_MAP).filter(k => k !== "DESTINATARIO" && !(k in colIndexByKey));
+    if (missing.length) {
+      console.warn("Columnas no encontradas en el CSV (revisa encabezados del Sheet):", missing);
+    }
     const dataRows = rawRows.slice(1);
     ROWS = dataRows.map((cells, idx) => {
       const obj = {};
-      COLS.forEach((key, i) => { obj[key] = (cells[i] !== undefined ? cells[i] : "").trim(); });
+      Object.values(HEADER_MAP).forEach(key => {
+        const i = colIndexByKey[key];
+        obj[key] = (i !== undefined && cells[i] !== undefined) ? cells[i].trim() : "";
+      });
       obj._sheetRow = idx + 2;
       return obj;
     });
@@ -888,16 +972,58 @@ function renderKPIs(rows) {
   document.getElementById("kpi-sobrante-pct").textContent = pctSobrante + "%";
   document.getElementById("kpi-sobrante-pct2").textContent = pctSobrante + "%";
 
-  // Desglose card
-  document.getElementById("desg-conforme-pct").textContent = pctConforme + "%";
-  document.getElementById("desg-conforme-bar").style.width = pctConforme + "%";
-  document.getElementById("desg-conforme-count").textContent = conforme.length + " líneas";
-  document.getElementById("desg-faltante-pct").textContent = pctFaltante + "%";
-  document.getElementById("desg-faltante-bar").style.width = pctFaltante + "%";
-  document.getElementById("desg-faltante-count").textContent = faltante.length + " líneas";
-  document.getElementById("desg-sobrante-pct").textContent = pctSobrante + "%";
-  document.getElementById("desg-sobrante-bar").style.width = pctSobrante + "%";
-  document.getElementById("desg-sobrante-count").textContent = sobrante.length + " líneas";
+  // Desglose card: % por Pedidos únicos (BPCS, clasificados por el peor estatus de sus líneas) y % por Unidades
+  const ordersMap = {};
+  rows.forEach(r => {
+    const bpcs = r.PEDIDO_BPCS || "(sin bpcs)";
+    if (!ordersMap[bpcs]) ordersMap[bpcs] = { hasFaltante:false, hasSobrante:false, hasConforme:false, hasEvaluada:false };
+    const est = estatusOf(r);
+    if (est === "Faltante") ordersMap[bpcs].hasFaltante = true;
+    if (est === "Sobrante") ordersMap[bpcs].hasSobrante = true;
+    if (est === "Conforme") ordersMap[bpcs].hasConforme = true;
+    if (est !== "Sin Evaluar") ordersMap[bpcs].hasEvaluada = true;
+  });
+  let ordConforme = 0, ordFaltante = 0, ordSobrante = 0, ordEvaluados = 0;
+  Object.values(ordersMap).forEach(o => {
+    if (!o.hasEvaluada) return; // pedido totalmente sin evaluar: se excluye del % (igual que a nivel línea)
+    ordEvaluados++;
+    if (o.hasFaltante) ordFaltante++;
+    else if (o.hasSobrante) ordSobrante++;
+    else ordConforme++;
+  });
+  const pctOrdConforme = ordEvaluados ? Math.round((ordConforme / ordEvaluados) * 1000) / 10 : 0;
+  const pctOrdFaltante = ordEvaluados ? Math.round((ordFaltante / ordEvaluados) * 1000) / 10 : 0;
+  const pctOrdSobrante = ordEvaluados ? Math.round((ordSobrante / ordEvaluados) * 1000) / 10 : 0;
+
+  const unidConforme = conforme.reduce((s,r)=>s+(parseFloat(r.UNIDADES)||0),0);
+  const unidFaltante = faltante.reduce((s,r)=>s+(parseFloat(r.UNIDADES)||0),0);
+  const unidSobrante = sobrante.reduce((s,r)=>s+(parseFloat(r.UNIDADES)||0),0);
+  const unidEvaluadas = unidConforme + unidFaltante + unidSobrante;
+  const pctUnidConforme = unidEvaluadas ? Math.round((unidConforme / unidEvaluadas) * 1000) / 10 : 0;
+  const pctUnidFaltante = unidEvaluadas ? Math.round((unidFaltante / unidEvaluadas) * 1000) / 10 : 0;
+  const pctUnidSobrante = unidEvaluadas ? Math.round((unidSobrante / unidEvaluadas) * 1000) / 10 : 0;
+
+  document.getElementById("desg-conforme-pedidos-pct").textContent = pctOrdConforme + "%";
+  document.getElementById("desg-conforme-pedidos-bar").style.width = pctOrdConforme + "%";
+  document.getElementById("desg-conforme-pedidos-count").textContent = ordConforme.toLocaleString("es-PE") + " ped.";
+  document.getElementById("desg-conforme-unidades-pct").textContent = pctUnidConforme + "%";
+  document.getElementById("desg-conforme-unidades-bar").style.width = pctUnidConforme + "%";
+  document.getElementById("desg-conforme-unidades-count").textContent = Math.round(unidConforme).toLocaleString("es-PE") + " un.";
+
+  document.getElementById("desg-faltante-pedidos-pct").textContent = pctOrdFaltante + "%";
+  document.getElementById("desg-faltante-pedidos-bar").style.width = pctOrdFaltante + "%";
+  document.getElementById("desg-faltante-pedidos-count").textContent = ordFaltante.toLocaleString("es-PE") + " ped.";
+  document.getElementById("desg-faltante-unidades-pct").textContent = pctUnidFaltante + "%";
+  document.getElementById("desg-faltante-unidades-bar").style.width = pctUnidFaltante + "%";
+  document.getElementById("desg-faltante-unidades-count").textContent = Math.round(unidFaltante).toLocaleString("es-PE") + " un.";
+
+  document.getElementById("desg-sobrante-pedidos-pct").textContent = pctOrdSobrante + "%";
+  document.getElementById("desg-sobrante-pedidos-bar").style.width = pctOrdSobrante + "%";
+  document.getElementById("desg-sobrante-pedidos-count").textContent = ordSobrante.toLocaleString("es-PE") + " ped.";
+  document.getElementById("desg-sobrante-unidades-pct").textContent = pctUnidSobrante + "%";
+  document.getElementById("desg-sobrante-unidades-bar").style.width = pctUnidSobrante + "%";
+  document.getElementById("desg-sobrante-unidades-count").textContent = Math.round(unidSobrante).toLocaleString("es-PE") + " un.";
+
   const unidObs = rows.reduce((s,r)=> s + (estatusOf(r)!=="Conforme" ? (parseFloat(r.CANTIDAD_OBSERVADA)||0) : 0), 0);
   document.getElementById("desg-unidades-obs").textContent = unidObs.toLocaleString("es-PE") + " un.";
 }
@@ -980,6 +1106,8 @@ function renderChart(rows) {
     svgContent += `<g class="chart-day-group transition-opacity" data-day="${dispLabel}" data-pct="${pctForTip}%" data-orders="${info.pedidosSet.size}" data-units="${Math.round(info.unidades).toLocaleString('es-PE')}" data-eval="${info.evaluadas}/${info.total}" data-desvios="${desvios}">
       <rect x="${cx-unidW-2}" y="${bottom-unidBarH}" width="${unidW}" height="${unidBarH}" rx="2" fill="url(#barGradUnidades)"></rect>
       <rect x="${cx+2}" y="${bottom-pedBarH}" width="${pedW}" height="${pedBarH}" rx="2" fill="url(#barGradPedidos)"></rect>
+      <text x="${cx-unidW-2+unidW/2}" y="${bottom-unidBarH-4}" font-size="9" font-weight="700" text-anchor="middle" fill="#7ba3d0">${Math.round(info.unidades).toLocaleString('es-PE')}</text>
+      <text x="${cx+2+pedW/2}" y="${bottom-pedBarH-4}" font-size="9" font-weight="700" text-anchor="middle" fill="#006398">${info.pedidosSet.size}</text>
       <rect x="${cx-unidW-6}" y="${top}" width="${unidW+pedW+8}" height="${bottom-top}" fill="transparent"></rect>
       <text x="${cx}" y="${bottom+18}" font-size="11" font-weight="600" text-anchor="middle" fill="#45464d">${dispLabel}</text>
     </g>`;
@@ -1038,73 +1166,101 @@ function setupChartTooltips() {
   });
 }
 
-/* ---------- Tabla + Paginación ---------- */
+/* ---------- Tabla + Paginación (maestro: 1 fila por pedido BPCS) ---------- */
+let LAST_FILTERED_ROWS = [];
+
+function groupByPedido(rows) {
+  const map = new Map();
+  rows.forEach(r => {
+    const key = r.PEDIDO_BPCS || "(sin BPCS)";
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(r);
+  });
+  const orders = Array.from(map.entries()).map(([bpcs, lines]) => {
+    const fechas = Array.from(new Set(lines.map(l => l.FECHA_CREACION))).filter(Boolean).sort();
+    const documentos = Array.from(new Set(lines.map(l => l.DOCUMENTO).filter(Boolean)));
+    const destinatarios = Array.from(new Set(lines.map(l => l.DESTINATARIO).filter(Boolean)));
+    const bodegas = Array.from(new Set(lines.map(l => l.BODEGA).filter(Boolean)));
+    const unidades = lines.reduce((s, l) => s + (parseFloat(l.UNIDADES) || 0), 0);
+    let hasFaltante = false, hasSobrante = false, hasEvaluada = false;
+    lines.forEach(l => {
+      const est = estatusOf(l);
+      if (est === "Faltante") hasFaltante = true;
+      if (est === "Sobrante") hasSobrante = true;
+      if (est !== "Sin Evaluar") hasEvaluada = true;
+    });
+    const estGrupo = !hasEvaluada ? "Sin Evaluar" : (hasFaltante ? "Faltante" : (hasSobrante ? "Sobrante" : "Conforme"));
+    return { bpcs, lines, fecha: fechas[fechas.length - 1] || "", documentos, destinatarios, bodegas, unidades, estGrupo };
+  });
+  orders.sort((a, b) => (b.fecha || "").localeCompare(a.fecha || ""));
+  return orders;
+}
+
 function renderTable(rows) {
+  LAST_FILTERED_ROWS = rows;
   const tbody = document.getElementById("table-body");
   tbody.innerHTML = "";
-  const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+
+  const orders = groupByPedido(rows);
+  const totalPages = Math.max(1, Math.ceil(orders.length / pageSize));
   if (currentPage > totalPages) currentPage = totalPages;
   const startIdx = (currentPage - 1) * pageSize;
-  const pageRows = rows.slice(startIdx, startIdx + pageSize);
+  const pageOrders = orders.slice(startIdx, startIdx + pageSize);
 
-  pageRows.forEach(r => {
-    const est = estatusOf(r);
+  pageOrders.forEach(o => {
+    const allSelected = o.lines.every(l => selectedRows.has(l._sheetRow));
     const tr = document.createElement("tr");
-    const isSelected = selectedRows.has(r._sheetRow);
-    tr.className = "hover:bg-surface-container-low/60 transition-colors" + (isSelected ? " row-selected" : "");
+    tr.className = "hover:bg-surface-container-low/60 transition-colors cursor-pointer" + (allSelected ? " row-selected" : "");
     tr.innerHTML = `
-      <td class="py-space-md px-space-md">
-        <input type="checkbox" class="row-checkbox" data-row="${r._sheetRow}" ${isSelected ? "checked" : ""}>
+      <td class="py-space-md px-space-md" data-stop="1">
+        <input type="checkbox" class="order-checkbox" data-bpcs="${o.bpcs}" ${allSelected ? "checked" : ""}>
       </td>
       <td class="py-space-md px-space-md">
         <div class="flex flex-col">
-          <span class="font-bold text-on-surface font-label-md text-label-md">${fmtDateDisplay(r.FECHA_CREACION)}</span>
-          <span class="text-on-surface-variant text-[11px]">${r.BODEGA}</span>
+          <span class="font-bold text-on-surface font-label-md text-label-md">${fmtDateDisplay(o.fecha)}</span>
+          <span class="text-on-surface-variant text-[11px]">${o.bodegas.join(", ") || "-"}</span>
         </div>
       </td>
       <td class="py-space-md px-space-md">
         <div class="flex flex-col">
-          <span class="font-bold text-on-surface">${r.PEDIDO_BPCS}</span>
-          <span class="text-[11px] text-on-surface-variant">${r.DOCUMENTO}</span>
+          <span class="font-bold text-on-surface">${o.bpcs}</span>
+          <span class="text-[11px] text-on-surface-variant">${o.documentos.join(", ") || "-"}</span>
         </div>
       </td>
       <td class="py-space-md px-space-md">
-        <div class="flex flex-col">
-          <span class="font-mono text-[12px] font-semibold text-on-surface">${r.CODIGO} <span class="text-[10px] text-outline font-normal">• ${r.EAN13}</span></span>
-          <span class="text-[11px] text-on-surface-variant">${r.DESCRIPCION}</span>
-        </div>
+        <span class="text-[12px] text-on-surface">${o.destinatarios.join(", ") || "-"}</span>
       </td>
-      <td class="py-space-md px-space-md text-right font-semibold">${r.UNIDADES}</td>
+      <td class="py-space-md px-space-md text-right font-semibold">${o.lines.length.toLocaleString("es-PE")}</td>
+      <td class="py-space-md px-space-md text-right font-semibold">${Math.round(o.unidades).toLocaleString("es-PE")}</td>
       <td class="py-space-md px-space-md text-center">
-        <span class="inline-flex items-center px-space-sm py-1 rounded font-label-sm text-label-sm font-bold ${badgeClass(est)}">${est}</span>
+        <span class="inline-flex items-center px-space-sm py-1 rounded font-label-sm text-label-sm font-bold ${badgeClass(o.estGrupo)}">${o.estGrupo}</span>
       </td>
-      <td class="py-space-md px-space-md">
-        <div class="flex flex-col">
-          <span class="text-[12px] text-on-surface">${r.OBSERVACION || "-"}</span>
-          <span class="text-[11px] text-on-surface-variant">${r.PERSONAL_REPORTA || ""}</span>
-        </div>
-      </td>
-      <td class="py-space-md px-space-md text-right">
-        <button class="btn-edit p-1.5 rounded-lg hover:bg-surface-container-high transition-colors ${actionIconColor(est)}" data-row="${r._sheetRow}" type="button" title="Ver / Editar pedido">
-          <span class="material-symbols-outlined text-[20px]">${actionIcon(est)}</span>
+      <td class="py-space-md px-space-md text-right" data-stop="1">
+        <button class="order-open-btn p-1.5 rounded-lg hover:bg-surface-container-high transition-colors ${actionIconColor(o.estGrupo)}" data-bpcs="${o.bpcs}" type="button" title="Ver líneas del pedido">
+          <span class="material-symbols-outlined text-[20px]">chevron_right</span>
         </button>
       </td>`;
+    tr.addEventListener("click", (e) => {
+      if (e.target.closest('[data-stop="1"]')) return;
+      openOrderDrawer(o.bpcs);
+    });
     tbody.appendChild(tr);
   });
 
   document.getElementById("table-summary").textContent =
-    `Mostrando ${pageRows.length ? (startIdx+1) : 0}-${startIdx+pageRows.length} de ${rows.length.toLocaleString("es-PE")} pedidos filtrados (${ROWS.length.toLocaleString("es-PE")} en total)`;
+    `Mostrando ${pageOrders.length ? (startIdx+1) : 0}-${startIdx+pageOrders.length} de ${orders.length.toLocaleString("es-PE")} pedidos filtrados (${rows.length.toLocaleString("es-PE")} líneas)`;
 
   renderPagination(totalPages);
 
-  document.querySelectorAll(".btn-edit").forEach(btn => {
-    btn.addEventListener("click", () => openModal(parseInt(btn.dataset.row, 10)));
+  document.querySelectorAll(".order-open-btn").forEach(btn => {
+    btn.addEventListener("click", () => openOrderDrawer(btn.dataset.bpcs));
   });
 
-  document.querySelectorAll(".row-checkbox").forEach(cb => {
+  document.querySelectorAll(".order-checkbox").forEach(cb => {
     cb.addEventListener("change", () => {
-      const rowId = parseInt(cb.dataset.row, 10);
-      if (cb.checked) selectedRows.add(rowId); else selectedRows.delete(rowId);
+      const order = orders.find(o => o.bpcs === cb.dataset.bpcs);
+      if (!order) return;
+      order.lines.forEach(l => { if (cb.checked) selectedRows.add(l._sheetRow); else selectedRows.delete(l._sheetRow); });
       cb.closest("tr").classList.toggle("row-selected", cb.checked);
       updateSelectAllState(rows);
       updateBulkBar();
@@ -1113,6 +1269,70 @@ function renderTable(rows) {
   updateSelectAllState(rows);
   updateBulkBar();
 }
+
+/* ---------- Drawer de detalle de pedido (todas las líneas, sin importar filtros de la tabla) ---------- */
+let currentDrawerBpcs = null;
+
+function openOrderDrawer(bpcs) {
+  currentDrawerBpcs = bpcs;
+  renderDrawer();
+  document.getElementById("order-drawer-overlay").classList.remove("hidden");
+  document.getElementById("order-drawer").classList.remove("translate-x-full");
+}
+
+function closeOrderDrawer() {
+  document.getElementById("order-drawer").classList.add("translate-x-full");
+  setTimeout(() => document.getElementById("order-drawer-overlay").classList.add("hidden"), 300);
+  currentDrawerBpcs = null;
+}
+
+function renderDrawer() {
+  if (!currentDrawerBpcs) return;
+  const lines = ROWS.filter(r => r.PEDIDO_BPCS === currentDrawerBpcs);
+  const first = lines[0] || {};
+  const unidTotal = lines.reduce((s, l) => s + (parseFloat(l.UNIDADES) || 0), 0);
+
+  document.getElementById("drawer-title").textContent = "Pedido BPCS #" + currentDrawerBpcs;
+  document.getElementById("drawer-subtitle").textContent =
+    `${fmtDateDisplay(first.FECHA_CREACION)} • Doc. ${first.DOCUMENTO || "-"} • ${first.DESTINATARIO || "-"} • ${lines.length} líneas • ${Math.round(unidTotal).toLocaleString("es-PE")} un.`;
+
+  const tbody = document.getElementById("drawer-tbody");
+  tbody.innerHTML = "";
+  lines.forEach(r => {
+    const est = estatusOf(r);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="py-space-sm px-space-md">
+        <div class="flex flex-col">
+          <span class="font-mono text-[12px] font-semibold text-on-surface">${r.CODIGO} <span class="text-[10px] text-outline font-normal">• ${r.EAN13}</span></span>
+          <span class="text-[11px] text-on-surface-variant">${r.DESCRIPCION}</span>
+        </div>
+      </td>
+      <td class="py-space-sm px-space-md text-right font-semibold">${r.UNIDADES}</td>
+      <td class="py-space-sm px-space-md text-center">
+        <span class="inline-flex items-center px-space-sm py-1 rounded font-label-sm text-label-sm font-bold ${badgeClass(est)}">${est}</span>
+      </td>
+      <td class="py-space-sm px-space-md">
+        <div class="flex flex-col">
+          <span class="text-[12px] text-on-surface">${r.OBSERVACION || "-"}</span>
+          <span class="text-[11px] text-on-surface-variant">${r.PERSONAL_REPORTA || ""}</span>
+        </div>
+      </td>
+      <td class="py-space-sm px-space-md text-right">
+        <button class="btn-edit-drawer p-1.5 rounded-lg hover:bg-surface-container-high transition-colors ${actionIconColor(est)}" data-row="${r._sheetRow}" type="button" title="Ver / Editar línea">
+          <span class="material-symbols-outlined text-[20px]">${actionIcon(est)}</span>
+        </button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+
+  document.querySelectorAll(".btn-edit-drawer").forEach(btn => {
+    btn.addEventListener("click", () => openModal(parseInt(btn.dataset.row, 10)));
+  });
+}
+
+document.getElementById("drawer-close-btn").addEventListener("click", closeOrderDrawer);
+document.getElementById("order-drawer-overlay").addEventListener("click", closeOrderDrawer);
 
 function updateSelectAllState(filteredRows) {
   const selectAll = document.getElementById("select-all-rows");
@@ -1303,7 +1523,7 @@ function openModal(sheetRow) {
   if (!r) return;
   currentEditRow = r;
   document.getElementById("modal-subtitle").textContent =
-    `Pedido #${r.ID_PEDIDO} • Documento ${r.DOCUMENTO} • ${r.CODIGO} - ${r.DESCRIPCION}`;
+    `BPCS ${r.PEDIDO_BPCS} • Documento ${r.DOCUMENTO} • ${r.CODIGO} - ${r.DESCRIPCION}`;
   document.getElementById("f-estatus").value = r.ESTATUS || "";
   document.getElementById("f-fecha").value = fmtDateInput(r.FECHA);
   document.getElementById("f-observacion").value = r.OBSERVACION || "";
@@ -1387,7 +1607,7 @@ async function saveModal() {
 }
 
 /* ---------- Exportar CSV ---------- */
-const EXPORT_HEADERS = ["ID_PEDIDO","FECHA_CREACION","PEDIDO_BPCS","BODEGA","DOCUMENTO","CODIGO","DESCRIPCION","UNIDADES","EAN13","ESTATUS","FECHA","OBSERVACION","CANTIDAD_OBSERVADA","FECHA_RESPUESTA","RESPUESTA_DESPACHO","PERSONAL_REPORTA","FECHA_ALMACEN","RESPUESTA_ALMACEN","ACCIONES_TOMADAS"];
+const EXPORT_HEADERS = ["ID_PEDIDO","FECHA_CREACION","PEDIDO_BPCS","BODEGA","DOCUMENTO","DESTINATARIO","CODIGO","DESCRIPCION","UNIDADES","EAN13","ESTATUS","FECHA","OBSERVACION","CANTIDAD_OBSERVADA","FECHA_RESPUESTA","RESPUESTA_DESPACHO","PERSONAL_REPORTA","FECHA_ALMACEN","RESPUESTA_ALMACEN","ACCIONES_TOMADAS"];
 
 function exportCSV() {
   const rows = getFiltered();
@@ -1408,7 +1628,7 @@ function exportXLSX(rows, filenameSuffix) {
   if (!window.XLSX) { alert("La librería de Excel no cargó. Verifica tu conexión a internet."); return; }
   if (!rows.length) { alert("No hay pedidos para exportar con los filtros/selección actuales."); return; }
 
-  const niceHeaders = ["ID Pedido","Fecha Creación","Pedido BPCS","Bodega","Documento","Código","Descripción","Unidades","EAN13","Estatus","Fecha Evaluación","Observación","Cantidad Observada","Fecha Respuesta","Respuesta Despacho","Personal Reporta","Fecha Almacén","Respuesta Almacén","Acciones Tomadas"];
+  const niceHeaders = ["ID Pedido","Fecha Creación","Pedido BPCS","Bodega","Documento","Destinatario","Código","Descripción","Unidades","EAN13","Estatus","Fecha Evaluación","Observación","Cantidad Observada","Fecha Respuesta","Respuesta Despacho","Personal Reporta","Fecha Almacén","Respuesta Almacén","Acciones Tomadas"];
   const data = rows.map(r => EXPORT_HEADERS.reduce((acc, h) => {
     acc[niceHeaders[EXPORT_HEADERS.indexOf(h)]] = (h === "ESTATUS") ? estatusOf(r) : (r[h] || "");
     return acc;

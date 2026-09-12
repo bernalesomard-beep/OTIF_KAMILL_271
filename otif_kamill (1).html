@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>OTIF KAMILL - Control de Pedidos</title>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script id="tailwind-config">
+tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-fixed":"#002114","on-primary":"#ffffff","surface-container":"#e5eeff","inverse-on-surface":"#eaf1ff","secondary-container":"#5bb8fe","surface-container-highest":"#d3e4fe","on-secondary-fixed-variant":"#004b73","surface-container-high":"#dce9ff","secondary":"#006398","surface-tint":"#565e74","tertiary-fixed-dim":"#68dba9","on-secondary-fixed":"#001d31","outline-variant":"#c6c6cd","on-tertiary-container":"#069669","primary-fixed-dim":"#bec6e0","error":"#ba1a1a","on-secondary-container":"#00476e","on-error-container":"#93000a","on-primary-container":"#7c839b","surface-dim":"#cbdbf5","inverse-primary":"#bec6e0","secondary-fixed":"#cce5ff","secondary-fixed-dim":"#93ccff","on-primary-fixed":"#131b2e","tertiary-container":"#002114","primary-fixed":"#dae2fd","on-tertiary-fixed-variant":"#005137","tertiary-fixed":"#85f8c4","background":"#f8f9ff","surface":"#f8f9ff","surface-bright":"#f8f9ff","surface-variant":"#d3e4fe","on-surface-variant":"#45464d","tertiary":"#000000","on-primary-fixed-variant":"#3f465c","surface-container-low":"#eff4ff","on-error":"#ffffff","primary":"#000000","on-background":"#0b1c30","on-tertiary":"#ffffff","outline":"#76777d","primary-container":"#131b2e","on-surface":"#0b1c30","on-secondary":"#ffffff","inverse-surface":"#213145","surface-container-lowest":"#ffffff","error-container":"#ffdad6"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"space-sm":"0.5rem","space-lg":"1.25rem","margin":"2rem","space-md":"0.75rem","gutter":"1.25rem","gutter-mobile":"0.75rem","space-xl":"1.75rem","space-xs":"0.25rem","margin-mobile":"1rem"},fontFamily:{"label-sm":["Hanken Grotesk"],"label-md":["Hanken Grotesk"],"display-lg-mobile":["Hanken Grotesk"],"body-sm":["Hanken Grotesk"],"metric-headline":["Hanken Grotesk"],"headline-xl":["Hanken Grotesk"],"headline-md":["Hanken Grotesk"],"title-sm":["Hanken Grotesk"],"display-lg":["Hanken Grotesk"],"headline-lg":["Hanken Grotesk"],"body-md":["Hanken Grotesk"],"body-lg":["Hanken Grotesk"],"metric-headline-mobile":["Hanken Grotesk"]},fontSize:{"label-sm":["11px",{lineHeight:"14px",letterSpacing:"0.04em",fontWeight:"600"}],"label-md":["12px",{lineHeight:"16px",letterSpacing:"0.02em",fontWeight:"600"}],"display-lg-mobile":["28px",{lineHeight:"36px",letterSpacing:"-0.02em",fontWeight:"700"}],"body-sm":["12px",{lineHeight:"16px",fontWeight:"400"}],"metric-headline":["32px",{lineHeight:"38px",letterSpacing:"-0.02em",fontWeight:"700"}],"headline-xl":["28px",{lineHeight:"36px",letterSpacing:"-0.02em",fontWeight:"600"}],"headline-md":["18px",{lineHeight:"24px",letterSpacing:"-0.01em",fontWeight:"600"}],"title-sm":["15px",{lineHeight:"20px",letterSpacing:"-0.005em",fontWeight:"600"}],"display-lg":["36px",{lineHeight:"44px",letterSpacing:"-0.025em",fontWeight:"700"}],"headline-lg":["22px",{lineHeight:"30px",letterSpacing:"-0.015em",fontWeight:"600"}],"body-md":["13px",{lineHeight:"18px",fontWeight:"400"}],"body-lg":["15px",{lineHeight:"22px",fontWeight:"400"}],"metric-headline-mobile":["24px",{lineHeight:"30px",letterSpacing:"-0.015em",fontWeight:"700"}]}}}};
+</script>
+<style>
+@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}
+::-webkit-scrollbar{display:none;}
+.badge-conforme{background:#e5eeff;color:#069669;}
+.badge-faltante{background:#ffdad6;color:#93000a;}
+.badge-sobrante{background:#dce9ff;color:#006398;}
+.badge-sinevaluar{background:#eff4ff;color:#45464d;}
+.spin{animation:spin 1s linear infinite;}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+</style>
+</head>
+<body class="bg-surface font-body-md text-body-md text-on-surface antialiased">
+
+<!-- ============================= HEADER ============================= -->
+<header class="fixed top-0 w-full z-50 bg-surface-container-lowest/95 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)] border-b border-outline-variant/40">
+  <div class="h-16 w-full px-margin flex items-center justify-between gap-space-lg">
+    <div class="flex items-center gap-space-lg shrink-0">
+      <div class="flex items-center gap-space-md">
+        <div class="flex flex-col">
+          <span class="font-title-sm text-title-sm font-bold text-on-surface tracking-tight">OTIF KAMILL</span>
+          <span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">OSAWMS - ODAN89</span>
+        </div>
+      </div>
+      <div class="h-6 w-px bg-outline-variant/50 hidden lg:block"></div>
+      <nav class="hidden xl:flex items-center gap-space-xs">
+        <a class="px-space-md py-space-xs rounded-lg transition-colors bg-primary-container text-on-primary font-bold" href="#">Tablero OTIF</a>
+        <a class="font-label-md text-label-md px-space-md py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" href="#">Monitoreo de Pedidos</a>
+        <a class="font-label-md text-label-md px-space-md py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" href="#">Auditoría y Desvíos</a>
+        <a class="font-label-md text-label-md px-space-md py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" href="#">Reportes Ejecutivos</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-space-md shrink-0">
+      <div class="hidden md:flex items-center gap-space-xs px-space-md py-space-xs rounded-lg bg-surface-container-low border border-outline-variant/40">
+        <span id="conn-dot" class="w-2 h-2 rounded-full bg-outline"></span>
+        <span id="conn-label" class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Conectando...</span>
+      </div>
+      <div id="date-range-pill" class="hidden sm:flex items-center gap-space-xs px-space-md py-space-xs rounded-lg bg-surface-container-lowest border border-outline-variant/60">
+        <span class="material-symbols-outlined text-[18px] text-on-surface-variant">calendar_today</span>
+        <span class="font-body-sm text-body-sm font-semibold text-on-surface" id="date-range-label">Rango: --</span>
+      </div>
+      <div class="h-6 w-px bg-outline-variant/50 hidden sm:block"></div>
+      <button aria-label="Notificaciones" class="relative p-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" type="button">
+        <span class="material-symbols-outlined text-[20px]">notifications</span>
+        <span id="notif-dot" class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full hidden"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="w-full pt-16 bg-surface min-h-[calc(100vh-4rem)]">
+<div class="flex flex-col w-full">
+
+<!-- ==================== QUICK ACTION FILTERS BAR ==================== -->
+<section class="w-full px-margin py-space-md bg-surface-container-lowest shadow-sm">
+  <div class="w-full flex flex-col xl:flex-row xl:items-center justify-between gap-space-md">
+    <div class="flex flex-col gap-space-xs">
+      <span class="font-headline-md text-headline-md font-bold text-on-surface">Tablero OTIF - Control de Pedidos</span>
+      <span class="font-body-sm text-body-sm text-on-surface-variant">Conectado en vivo a la hoja de Control de Pedidos</span>
+    </div>
+    <div class="flex flex-wrap items-center gap-space-sm shrink-0">
+      <div class="relative inline-flex items-center bg-surface-container-low px-space-md py-space-xs rounded-lg shadow-sm">
+        <span class="material-symbols-outlined text-[18px] text-on-surface-variant mr-space-xs">warehouse</span>
+        <select id="filter-bodega" class="bg-transparent font-label-md text-label-md text-on-surface font-semibold focus:outline-none cursor-pointer pr-space-md">
+          <option value="all">Bodega: Todas</option>
+        </select>
+      </div>
+      <div class="relative inline-flex items-center bg-surface-container-low px-space-md py-space-xs rounded-lg shadow-sm">
+        <span class="material-symbols-outlined text-[18px] text-on-surface-variant mr-space-xs">fact_check</span>
+        <select id="filter-estatus" class="bg-transparent font-label-md text-label-md text-on-surface font-semibold focus:outline-none cursor-pointer pr-space-md">
+          <option value="all">Estatus: Todos</option>
+          <option value="Conforme">Conforme</option>
+          <option value="Faltante">Faltante</option>
+          <option value="Sobrante">Sobrante</option>
+          <option value="Sin Evaluar">Sin Evaluar</option>
+        </select>
+      </div>
+      <button class="inline-flex items-center gap-space-xs px-space-md py-space-xs rounded-lg bg-surface-container-high hover:bg-surface-container-highest transition-colors text-on-surface font-label-md text-label-md font-bold shadow-sm" id="sync-btn" type="button">
+        <span class="material-symbols-outlined text-[18px] text-secondary" id="sync-icon">sync</span>
+        <span>Sincronizar Sheet</span>
+      </button>
+      <button class="inline-flex items-center gap-space-xs px-space-md py-space-xs rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-bold shadow-md hover:opacity-90 transition-opacity" id="export-btn" type="button">
+        <span class="material-symbols-outlined text-[18px]">ios_share</span>
+        <span>Exportar CSV</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= MAIN BODY CONTENT ========================= -->
+<div class="w-full px-margin py-space-lg flex flex-col gap-space-xl">
+
+<!-- ---------------------- KPI CARDS (4) ---------------------- -->
+<section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-lg">
+  <!-- Card 1: Total pedidos -->
+  <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+    <div class="absolute top-0 left-0 w-1.5 h-full bg-on-surface"></div>
+    <div class="flex flex-col gap-space-xs">
+      <div class="flex items-center justify-between">
+        <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Total Pedidos (líneas)</span>
+        <span class="px-space-xs py-0.5 rounded bg-surface-container-high font-label-sm text-label-sm text-on-surface font-bold" id="kpi-unidades-badge">0 un.</span>
+      </div>
+      <div class="flex items-baseline gap-space-md mt-space-xs">
+        <span class="font-metric-headline text-metric-headline font-bold text-on-surface tracking-tight" id="kpi-total">0</span>
+        <div class="inline-flex items-center gap-0.5 px-space-xs py-0.5 rounded bg-surface-container-high font-label-sm text-label-sm font-bold text-on-surface-variant" id="kpi-total-trend">
+          <span class="material-symbols-outlined text-[14px]">calendar_month</span>
+          <span id="kpi-total-trend-txt">-</span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-space-md flex flex-col gap-space-xs">
+      <div class="flex justify-between items-center font-label-sm text-label-sm text-on-surface-variant">
+        <span>Evaluadas: <strong class="text-on-surface font-semibold" id="kpi-evaluadas">0</strong></span>
+        <span>Sin evaluar: <strong class="text-on-surface font-semibold" id="kpi-sinevaluar">0</strong></span>
+      </div>
+      <div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden flex">
+        <div class="h-full bg-secondary" id="kpi-total-bar-eval" style="width:0%"></div>
+        <div class="h-full bg-surface-container-highest" id="kpi-total-bar-noeval" style="width:100%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 2: % Conforme -->
+  <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+    <div class="absolute top-0 left-0 w-1.5 h-full bg-on-tertiary-container"></div>
+    <div class="flex flex-col gap-space-xs">
+      <div class="flex items-center justify-between">
+        <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">% Conforme (de evaluadas)</span>
+        <span class="px-space-xs py-0.5 rounded bg-surface-container-high font-label-sm text-label-sm text-on-surface font-bold">Meta: ≥95.0%</span>
+      </div>
+      <div class="flex items-baseline gap-space-md mt-space-xs">
+        <span class="font-metric-headline text-metric-headline font-bold text-on-surface tracking-tight" id="kpi-conforme-pct">0%</span>
+        <div class="inline-flex items-center gap-0.5 px-space-xs py-0.5 rounded font-label-sm text-label-sm font-bold" id="kpi-conforme-trend">
+          <span class="material-symbols-outlined text-[14px]" id="kpi-conforme-trend-icon">trending_flat</span>
+          <span id="kpi-conforme-trend-txt">sin dato previo</span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-space-md flex flex-col gap-space-xs">
+      <div class="flex justify-between items-center font-label-sm text-label-sm text-on-surface-variant">
+        <span>Conformes: <strong class="text-on-surface font-semibold" id="kpi-conforme-count">0</strong></span>
+        <span class="font-bold" id="kpi-conforme-gap">-</span>
+      </div>
+      <div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden flex">
+        <div class="h-full bg-on-tertiary-container" id="kpi-conforme-bar" style="width:0%"></div>
+        <div class="h-full bg-error" id="kpi-conforme-bar-gap" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 3: Faltantes -->
+  <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+    <div class="absolute top-0 left-0 w-1.5 h-full bg-error"></div>
+    <div class="flex flex-col gap-space-xs">
+      <div class="flex items-center justify-between">
+        <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Faltantes</span>
+        <span class="px-space-xs py-0.5 rounded bg-error-container font-label-sm text-label-sm text-on-error-container font-bold" id="kpi-faltante-pct">0%</span>
+      </div>
+      <div class="flex flex-col mt-space-xs">
+        <span class="font-headline-md text-headline-md font-bold text-on-surface leading-snug"><span id="kpi-faltante-count">0</span> líneas</span>
+        <span class="font-label-sm text-label-sm text-error font-semibold"><span id="kpi-faltante-unid">0</span> unidades observadas</span>
+      </div>
+    </div>
+    <div class="mt-space-md p-space-sm rounded bg-surface-container-low flex items-center justify-between">
+      <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant">% del total evaluado</span>
+      <span class="font-title-sm text-title-sm font-bold text-error" id="kpi-faltante-pct2">0%</span>
+    </div>
+  </div>
+
+  <!-- Card 4: Sobrantes -->
+  <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+    <div class="absolute top-0 left-0 w-1.5 h-full bg-secondary"></div>
+    <div class="flex flex-col gap-space-xs">
+      <div class="flex items-center justify-between">
+        <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Sobrantes</span>
+        <span class="px-space-xs py-0.5 rounded bg-surface-container text-secondary font-label-sm text-label-sm font-bold" id="kpi-sobrante-pct">0%</span>
+      </div>
+      <div class="flex flex-col mt-space-xs">
+        <span class="font-headline-md text-headline-md font-bold text-on-surface leading-snug"><span id="kpi-sobrante-count">0</span> líneas</span>
+        <span class="font-label-sm text-label-sm text-secondary font-semibold"><span id="kpi-sobrante-unid">0</span> unidades observadas</span>
+      </div>
+    </div>
+    <div class="mt-space-md p-space-sm rounded bg-surface-container-low flex items-center justify-between">
+      <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant">% del total evaluado</span>
+      <span class="font-title-sm text-title-sm font-bold text-secondary" id="kpi-sobrante-pct2">0%</span>
+    </div>
+  </div>
+</section>
+
+<!-- ---------------- CHARTS & BREAKDOWN SECTION ---------------- -->
+<section class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg">
+  <!-- Chart principal: Pedidos/Unidades vs % Conforme -->
+  <div class="xl:col-span-8 bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm mb-space-md">
+      <div class="flex flex-col">
+        <div class="flex items-center gap-space-xs">
+          <span class="material-symbols-outlined text-secondary text-[20px]">bar_chart</span>
+          <h2 class="font-headline-md text-headline-md font-bold text-on-surface">Evolución de Pedidos y Unidades vs. % Conforme</h2>
+        </div>
+        <p class="font-body-sm text-body-sm text-on-surface-variant">Comportamiento por fecha de creación (últimas fechas registradas en el Sheet).</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-space-md">
+        <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-surface-container-highest"></span><span class="font-label-sm text-label-sm text-on-surface-variant">Unidades (esc.)</span></div>
+        <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-secondary"></span><span class="font-label-sm text-label-sm text-on-surface-variant">Pedidos</span></div>
+        <div class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-on-tertiary-container"></span><span class="w-2 h-2 rounded-full bg-on-tertiary-container -ml-2"></span><span class="font-label-sm text-label-sm text-on-tertiary-container font-bold">% Conforme</span></div>
+        <div class="flex items-center gap-1.5"><span class="w-4 h-0.5 bg-error"></span><span class="font-label-sm text-label-sm text-error font-semibold">Meta (95%)</span></div>
+      </div>
+    </div>
+    <div class="relative w-full h-[320px] bg-surface-container-low/50 rounded-lg p-space-md flex flex-col justify-between overflow-hidden">
+      <svg id="main-chart" class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 760 260"></svg>
+    </div>
+    <div class="flex items-center justify-between pt-space-sm text-on-surface-variant font-label-sm text-label-sm">
+      <span>Promedio de % Conforme del período mostrado: <strong class="text-on-surface" id="chart-avg-conforme">-</strong></span>
+      <span class="inline-flex items-center gap-1 text-on-tertiary-container font-semibold" id="chart-note"></span>
+    </div>
+  </div>
+
+  <!-- Desglose de Estatus -->
+  <div class="xl:col-span-4 bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between">
+    <div>
+      <div class="flex items-center justify-between mb-space-xs">
+        <h3 class="font-headline-md text-headline-md font-bold text-on-surface">Desglose de Estatus</h3>
+        <span class="px-space-xs py-0.5 rounded bg-surface-container text-secondary font-label-sm text-label-sm font-semibold">Datos reales</span>
+      </div>
+      <p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">Distribución de líneas evaluadas sobre el total filtrado.</p>
+      <div class="flex flex-col gap-space-md">
+        <div class="p-space-md rounded-lg bg-surface-container-low flex flex-col gap-space-xs">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-on-tertiary-container text-[20px]">check_circle</span><span class="font-label-md text-label-md font-bold text-on-surface">Conforme</span></div>
+            <span class="font-title-sm text-title-sm font-bold text-on-tertiary-container" id="desg-conforme-pct">0%</span>
+          </div>
+          <div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden"><div class="h-full bg-on-tertiary-container rounded-full" id="desg-conforme-bar" style="width:0%"></div></div>
+          <div class="flex justify-between text-[11px] font-label-sm text-on-surface-variant"><span id="desg-conforme-count">0 líneas</span></div>
+        </div>
+        <div class="p-space-md rounded-lg bg-surface-container-low flex flex-col gap-space-xs">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-error text-[20px]">remove_shopping_cart</span><span class="font-label-md text-label-md font-bold text-on-surface">Faltante</span></div>
+            <span class="font-title-sm text-title-sm font-bold text-error" id="desg-faltante-pct">0%</span>
+          </div>
+          <div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden"><div class="h-full bg-error rounded-full" id="desg-faltante-bar" style="width:0%"></div></div>
+          <div class="flex justify-between text-[11px] font-label-sm text-on-surface-variant"><span id="desg-faltante-count">0 líneas</span></div>
+        </div>
+        <div class="p-space-md rounded-lg bg-surface-container-low flex flex-col gap-space-xs">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-secondary text-[20px]">inventory_2</span><span class="font-label-md text-label-md font-bold text-on-surface">Sobrante</span></div>
+            <span class="font-title-sm text-title-sm font-bold text-secondary" id="desg-sobrante-pct">0%</span>
+          </div>
+          <div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden"><div class="h-full bg-secondary rounded-full" id="desg-sobrante-bar" style="width:0%"></div></div>
+          <div class="flex justify-between text-[11px] font-label-sm text-on-surface-variant"><span id="desg-sobrante-count">0 líneas</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-space-md p-space-sm rounded bg-surface-container flex items-center justify-between">
+      <div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-secondary text-[20px]">warning</span><span class="font-label-sm text-label-sm font-semibold text-on-surface">Unidades Observadas Totales:</span></div>
+      <span class="font-title-sm text-title-sm font-bold text-on-surface" id="desg-unidades-obs">0 un.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ------------------------- TABLE SECTION ------------------------- -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col">
+  <div class="p-space-lg bg-surface-container-low flex flex-col gap-space-md">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-sm">
+      <div class="flex flex-col">
+        <div class="flex items-center gap-space-xs">
+          <span class="material-symbols-outlined text-secondary text-[20px]">inventory</span>
+          <h3 class="font-headline-md text-headline-md font-bold text-on-surface">Detalle de Pedidos y Evaluación</h3>
+        </div>
+        <p class="font-body-sm text-body-sm text-on-surface-variant">Trazabilidad línea por línea. Haz clic en "Ver / Editar" para registrar estatus y respuestas.</p>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-sm pt-space-xs">
+      <div class="relative flex items-center">
+        <span class="material-symbols-outlined absolute left-3 text-[18px] text-on-surface-variant">search</span>
+        <input class="w-full pl-9 pr-3 py-2 bg-surface-container-lowest rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none shadow-sm" id="table-search" placeholder="Buscar por Pedido, Documento, Código o Descripción..." type="text">
+      </div>
+      <div class="relative flex items-center">
+        <span class="material-symbols-outlined absolute left-3 text-[18px] text-on-surface-variant">description</span>
+        <input class="w-full pl-9 pr-3 py-2 bg-surface-container-lowest rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none shadow-sm" id="filter-documento" placeholder="Filtrar por N° Documento exacto..." type="text">
+      </div>
+      <div class="relative flex items-center">
+        <span class="material-symbols-outlined absolute left-3 text-[18px] text-on-surface-variant">event</span>
+        <input class="w-full pl-9 pr-3 py-2 bg-surface-container-lowest rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none shadow-sm" id="filter-fecha" placeholder="Filtrar por fecha (AAAAMMDD)..." type="text">
+      </div>
+      <div class="relative flex items-center">
+        <span class="material-symbols-outlined absolute left-3 text-[18px] text-on-surface-variant">tag</span>
+        <input class="w-full pl-9 pr-3 py-2 bg-surface-container-lowest rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none shadow-sm" id="filter-bpcs" placeholder="Filtrar por Pedido BPCS..." type="text">
+      </div>
+    </div>
+  </div>
+
+  <div class="w-full overflow-x-auto">
+    <table class="w-full text-left border-collapse">
+      <thead>
+        <tr class="bg-surface-container-high/60 text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+          <th class="py-space-md px-space-md font-bold">N° Pedido / Fecha Creación</th>
+          <th class="py-space-md px-space-md font-bold">Documento / BPCS / Bodega</th>
+          <th class="py-space-md px-space-md font-bold">Código / Descripción / EAN</th>
+          <th class="py-space-md px-space-md font-bold text-right">Unidades</th>
+          <th class="py-space-md px-space-md font-bold text-center">Estatus</th>
+          <th class="py-space-md px-space-md font-bold">Observación / Personal</th>
+          <th class="py-space-md px-space-md font-bold text-right">Acción</th>
+        </tr>
+      </thead>
+      <tbody id="table-body" class="divide-y divide-surface-container-low font-body-sm text-body-sm text-on-surface"></tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="p-space-md bg-surface-container-lowest border-t border-surface-container-high flex flex-col sm:flex-row items-center justify-between gap-space-md">
+    <div class="flex items-center gap-space-md">
+      <span class="font-label-sm text-label-sm text-on-surface-variant" id="table-summary">Cargando datos...</span>
+    </div>
+    <div class="flex items-center gap-space-sm">
+      <div class="flex items-center gap-1" id="pagination-buttons"></div>
+      <div class="h-4 w-px bg-outline-variant/40 hidden sm:block"></div>
+      <select id="page-size" class="bg-surface-container-low text-on-surface text-[12px] font-semibold py-1 px-2 rounded focus:outline-none cursor-pointer">
+        <option value="10">10 por página</option>
+        <option value="25">25 por página</option>
+        <option value="50">50 por página</option>
+      </select>
+    </div>
+  </div>
+</section>
+
+</div>
+</div>
+</main>
+
+<!-- ============================= FOOTER ============================= -->
+<footer class="w-full bg-surface-container-lowest border-t border-outline-variant/30 py-space-lg">
+  <div class="w-full px-margin flex flex-col sm:flex-row items-center justify-between gap-space-md">
+    <div class="flex items-center gap-space-sm">
+      <span class="font-label-sm text-label-sm font-bold text-on-surface tracking-wider uppercase">OSAWMS</span>
+      <span class="text-outline-variant font-label-sm">•</span>
+      <span class="font-body-sm text-body-sm text-on-surface-variant">Control de Pedidos - Tablero OTIF Kamill</span>
+    </div>
+    <div class="flex items-center gap-space-lg">
+      <span class="font-label-sm text-label-sm text-on-surface-variant">Última sincronización: <strong class="text-on-surface font-semibold" id="footer-sync-time">-</strong></span>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================ MODAL EDICIÓN ============================ -->
+<div id="edit-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/40 p-4">
+  <div class="bg-surface-container-lowest rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div class="p-space-lg border-b border-outline-variant/30 flex items-center justify-between sticky top-0 bg-surface-container-lowest z-10">
+      <div>
+        <h3 class="font-headline-md text-headline-md font-bold text-on-surface">Editar Pedido</h3>
+        <p id="modal-subtitle" class="font-body-sm text-body-sm text-on-surface-variant"></p>
+      </div>
+      <button id="modal-close" class="p-1 rounded hover:bg-surface-container-high text-on-surface-variant" type="button">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="p-space-lg flex flex-col gap-space-md">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+        <label class="flex flex-col gap-1">
+          <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Estatus</span>
+          <select id="f-estatus" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none">
+            <option value="">Sin Evaluar</option>
+            <option value="Conforme">Conforme</option>
+            <option value="Faltante">Faltante</option>
+            <option value="Sobrante">Sobrante</option>
+          </select>
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Fecha</span>
+          <input id="f-fecha" type="date" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none">
+        </label>
+      </div>
+      <label class="flex flex-col gap-1">
+        <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Observación</span>
+        <textarea id="f-observacion" rows="2" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none"></textarea>
+      </label>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+        <label class="flex flex-col gap-1">
+          <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Cantidad Observada</span>
+          <input id="f-cantidad" type="number" step="1" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none">
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Fecha de Respuesta</span>
+          <input id="f-fecharesp" type="date" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none">
+        </label>
+      </div>
+      <label class="flex flex-col gap-1">
+        <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Respuesta Despacho</span>
+        <textarea id="f-respdespacho" rows="2" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none"></textarea>
+      </label>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+        <label class="flex flex-col gap-1">
+          <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Personal que Reporta</span>
+          <input id="f-personal" type="text" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none">
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Fecha Almacén</span>
+          <input id="f-fechaalmacen" type="date" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none">
+        </label>
+      </div>
+      <label class="flex flex-col gap-1">
+        <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Respuesta de Almacén</span>
+        <textarea id="f-respalmacen" rows="2" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none"></textarea>
+      </label>
+      <label class="flex flex-col gap-1">
+        <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Acciones Tomadas</span>
+        <textarea id="f-acciones" rows="2" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none"></textarea>
+      </label>
+    </div>
+    <div class="p-space-lg border-t border-outline-variant/30 flex items-center justify-between sticky bottom-0 bg-surface-container-lowest">
+      <span id="save-status" class="font-label-sm text-label-sm text-on-surface-variant"></span>
+      <div class="flex items-center gap-space-sm">
+        <button id="modal-cancel" class="px-space-lg py-2 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md font-semibold" type="button">Cancelar</button>
+        <button id="modal-save" class="px-space-lg py-2 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-bold shadow-sm" type="button">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   CONFIGURACIÓN - EDITA ESTOS DOS VALORES
+   ========================================================================= */
+const CONFIG = {
+  CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRknwbWoamDOkrY1NP6kRoXUwdRNSvyf5WgCzrjqO-Pu2kTYLwJUkqSGucMASROpVpUyHYQ7ucRtgsu/pub?gid=0&single=true&output=csv",
+  APPS_SCRIPT_URL: "", // Pega aquí la URL del Web App de Code.gs cuando lo despliegues
+  META_CONFORME: 95    // % meta de conformidad, usado en el gráfico y la tarjeta KPI
+};
+
+const COLS = ["ID_PEDIDO","FECHA_CREACION","PEDIDO_BPCS","BODEGA","DOCUMENTO","CODIGO","DESCRIPCION","UNIDADES","EAN13",
+  "ESTATUS","FECHA","OBSERVACION","CANTIDAD_OBSERVADA","FECHA_RESPUESTA","RESPUESTA_DESPACHO","PERSONAL_REPORTA","FECHA_ALMACEN","RESPUESTA_ALMACEN","ACCIONES_TOMADAS"];
+
+let ROWS = [];
+let currentEditRow = null;
+let currentPage = 1;
+let pageSize = 10;
+
+/* ---------- CSV parsing (soporta comillas y comas dentro de campos) ---------- */
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = "", inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i], next = text[i+1];
+    if (inQuotes) {
+      if (c === '"' && next === '"') { field += '"'; i++; }
+      else if (c === '"') { inQuotes = false; }
+      else { field += c; }
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ',') { row.push(field); field = ""; }
+      else if (c === '\r') { /* ignore */ }
+      else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ""; }
+      else field += c;
+    }
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows.filter(r => r.some(c => c !== ""));
+}
+
+function fmtDateInput(v) {
+  if (!v) return "";
+  v = String(v).trim();
+  if (/^\d{8}$/.test(v)) return v.slice(0,4) + "-" + v.slice(4,6) + "-" + v.slice(6,8);
+  if (/^\d{4}-\d{2}-\d{2}/.test(v)) return v.slice(0,10);
+  const d = new Date(v);
+  if (!isNaN(d)) return d.toISOString().slice(0,10);
+  return "";
+}
+function fmtDateDisplay(v) {
+  const iso = fmtDateInput(v);
+  if (!iso) return "-";
+  const [y,m,d] = iso.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+function estatusOf(r) {
+  const e = (r.ESTATUS || "").trim();
+  return e === "" ? "Sin Evaluar" : e;
+}
+function badgeClass(estatus) {
+  if (estatus === "Conforme") return "badge-conforme";
+  if (estatus === "Faltante") return "badge-faltante";
+  if (estatus === "Sobrante") return "badge-sobrante";
+  return "badge-sinevaluar";
+}
+
+/* ---------- Carga de datos ---------- */
+async function loadData() {
+  setConn("loading");
+  try {
+    const res = await fetch(CONFIG.CSV_URL + (CONFIG.CSV_URL.includes("?") ? "&" : "?") + "_ts=" + Date.now());
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const text = await res.text();
+    const rawRows = parseCSV(text);
+    const dataRows = rawRows.slice(1);
+    ROWS = dataRows.map((cells, idx) => {
+      const obj = {};
+      COLS.forEach((key, i) => { obj[key] = (cells[i] !== undefined ? cells[i] : "").trim(); });
+      obj._sheetRow = idx + 2;
+      return obj;
+    });
+    populateBodegaFilter();
+    updateDateRangePill();
+    currentPage = 1;
+    renderAll();
+    setConn("ok");
+    document.getElementById("footer-sync-time").textContent = new Date().toLocaleTimeString("es-PE");
+  } catch (err) {
+    console.error(err);
+    setConn("error");
+  }
+}
+
+function setConn(state) {
+  const dot = document.getElementById("conn-dot");
+  const label = document.getElementById("conn-label");
+  if (state === "loading") { dot.className = "w-2 h-2 rounded-full bg-secondary animate-pulse"; label.textContent = "Cargando datos..."; }
+  else if (state === "ok") { dot.className = "w-2 h-2 rounded-full bg-on-tertiary-container"; label.textContent = "Conectado al Sheet"; }
+  else { dot.className = "w-2 h-2 rounded-full bg-error"; label.textContent = "Error de conexión"; }
+}
+
+function populateBodegaFilter() {
+  const sel = document.getElementById("filter-bodega");
+  const current = sel.value;
+  const bodegas = Array.from(new Set(ROWS.map(r => r.BODEGA).filter(Boolean))).sort();
+  sel.innerHTML = '<option value="all">Bodega: Todas</option>' + bodegas.map(b => `<option value="${b}">${b}</option>`).join("");
+  sel.value = bodegas.includes(current) ? current : "all";
+}
+
+function updateDateRangePill() {
+  const dates = ROWS.map(r => r.FECHA_CREACION).filter(d => /^\d{8}$/.test(d)).sort();
+  if (!dates.length) { document.getElementById("date-range-label").textContent = "Rango: --"; return; }
+  const min = dates[0], max = dates[dates.length-1];
+  document.getElementById("date-range-label").textContent = `${fmtDateDisplay(min)} - ${fmtDateDisplay(max)}`;
+}
+
+/* ---------- Filtros ---------- */
+function getFiltered() {
+  const q = document.getElementById("table-search").value.toLowerCase().trim();
+  const estFilter = document.getElementById("filter-estatus").value;
+  const bodegaFilter = document.getElementById("filter-bodega").value;
+  const docFilter = document.getElementById("filter-documento").value.trim();
+  const fechaFilter = document.getElementById("filter-fecha").value.trim();
+  const bpcsFilter = document.getElementById("filter-bpcs").value.trim();
+  return ROWS.filter(r => {
+    if (estFilter !== "all" && estatusOf(r) !== estFilter) return false;
+    if (bodegaFilter !== "all" && r.BODEGA !== bodegaFilter) return false;
+    if (docFilter && r.DOCUMENTO !== docFilter) return false;
+    if (fechaFilter && r.FECHA_CREACION.indexOf(fechaFilter) === -1) return false;
+    if (bpcsFilter && r.PEDIDO_BPCS !== bpcsFilter) return false;
+    if (q) {
+      const hay = (r.DOCUMENTO + " " + r.CODIGO + " " + r.DESCRIPCION + " " + r.ID_PEDIDO).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+/* ---------- KPIs ---------- */
+function renderKPIs(rows) {
+  const total = rows.length;
+  const unidades = rows.reduce((s,r) => s + (parseFloat(r.UNIDADES) || 0), 0);
+  const conforme = rows.filter(r => estatusOf(r) === "Conforme");
+  const faltante = rows.filter(r => estatusOf(r) === "Faltante");
+  const sobrante = rows.filter(r => estatusOf(r) === "Sobrante");
+  const evaluadas = conforme.length + faltante.length + sobrante.length;
+  const sinEvaluar = total - evaluadas;
+  const pctConforme = evaluadas ? Math.round((conforme.length / evaluadas) * 1000) / 10 : 0;
+  const pctFaltante = evaluadas ? Math.round((faltante.length / evaluadas) * 1000) / 10 : 0;
+  const pctSobrante = evaluadas ? Math.round((sobrante.length / evaluadas) * 1000) / 10 : 0;
+
+  document.getElementById("kpi-total").textContent = total.toLocaleString("es-PE");
+  document.getElementById("kpi-unidades-badge").textContent = unidades.toLocaleString("es-PE") + " un.";
+  document.getElementById("kpi-evaluadas").textContent = evaluadas.toLocaleString("es-PE");
+  document.getElementById("kpi-sinevaluar").textContent = sinEvaluar.toLocaleString("es-PE");
+  const pctEval = total ? (evaluadas/total*100) : 0;
+  document.getElementById("kpi-total-bar-eval").style.width = pctEval + "%";
+  document.getElementById("kpi-total-bar-noeval").style.width = (100-pctEval) + "%";
+  document.getElementById("kpi-total-trend-txt").textContent = pctEval.toFixed(1) + "% evaluado";
+
+  document.getElementById("kpi-conforme-pct").textContent = pctConforme + "%";
+  document.getElementById("kpi-conforme-count").textContent = conforme.length.toLocaleString("es-PE");
+  document.getElementById("kpi-conforme-bar").style.width = Math.min(100, pctConforme) + "%";
+  const gap = Math.round((pctConforme - CONFIG.META_CONFORME) * 10) / 10;
+  const gapEl = document.getElementById("kpi-conforme-gap");
+  gapEl.textContent = evaluadas ? (gap >= 0 ? `+${gap} pts sobre meta` : `${gap} pts bajo meta`) : "-";
+  gapEl.className = "font-bold " + (gap >= 0 ? "text-on-tertiary-container" : "text-error");
+  document.getElementById("kpi-conforme-bar-gap").style.width = evaluadas ? Math.max(0, CONFIG.META_CONFORME - pctConforme) + "%" : "0%";
+
+  // Trend real: compara % conforme del último día vs el día anterior disponible
+  const daily = computeDailyStats(rows);
+  const dates = daily.dates;
+  const trendIcon = document.getElementById("kpi-conforme-trend-icon");
+  const trendTxt = document.getElementById("kpi-conforme-trend-txt");
+  const trendBox = document.getElementById("kpi-conforme-trend");
+  if (dates.length >= 2) {
+    const last = daily.perDate[dates[dates.length-1]];
+    const prev = daily.perDate[dates[dates.length-2]];
+    const lastPct = last.evaluadas ? (last.Conforme/last.evaluadas*100) : null;
+    const prevPct = prev.evaluadas ? (prev.Conforme/prev.evaluadas*100) : null;
+    if (lastPct !== null && prevPct !== null) {
+      const delta = Math.round((lastPct - prevPct)*10)/10;
+      trendIcon.textContent = delta > 0 ? "trending_up" : (delta < 0 ? "trending_down" : "trending_flat");
+      trendTxt.textContent = (delta >= 0 ? "+" : "") + delta + "% vs fecha anterior";
+      trendBox.className = "inline-flex items-center gap-0.5 px-space-xs py-0.5 rounded font-label-sm text-label-sm font-bold " + (delta >= 0 ? "bg-surface-container text-on-tertiary-container" : "bg-surface-container-high text-error");
+    } else {
+      trendTxt.textContent = "sin dato previo suficiente";
+    }
+  } else {
+    trendTxt.textContent = "sin dato previo";
+  }
+
+  document.getElementById("kpi-faltante-count").textContent = faltante.length.toLocaleString("es-PE");
+  document.getElementById("kpi-faltante-unid").textContent = faltante.reduce((s,r)=>s+(parseFloat(r.CANTIDAD_OBSERVADA)||0),0).toLocaleString("es-PE");
+  document.getElementById("kpi-faltante-pct").textContent = pctFaltante + "%";
+  document.getElementById("kpi-faltante-pct2").textContent = pctFaltante + "%";
+
+  document.getElementById("kpi-sobrante-count").textContent = sobrante.length.toLocaleString("es-PE");
+  document.getElementById("kpi-sobrante-unid").textContent = sobrante.reduce((s,r)=>s+(parseFloat(r.CANTIDAD_OBSERVADA)||0),0).toLocaleString("es-PE");
+  document.getElementById("kpi-sobrante-pct").textContent = pctSobrante + "%";
+  document.getElementById("kpi-sobrante-pct2").textContent = pctSobrante + "%";
+
+  // Desglose card
+  document.getElementById("desg-conforme-pct").textContent = pctConforme + "%";
+  document.getElementById("desg-conforme-bar").style.width = pctConforme + "%";
+  document.getElementById("desg-conforme-count").textContent = conforme.length + " líneas";
+  document.getElementById("desg-faltante-pct").textContent = pctFaltante + "%";
+  document.getElementById("desg-faltante-bar").style.width = pctFaltante + "%";
+  document.getElementById("desg-faltante-count").textContent = faltante.length + " líneas";
+  document.getElementById("desg-sobrante-pct").textContent = pctSobrante + "%";
+  document.getElementById("desg-sobrante-bar").style.width = pctSobrante + "%";
+  document.getElementById("desg-sobrante-count").textContent = sobrante.length + " líneas";
+  const unidObs = rows.reduce((s,r)=> s + (estatusOf(r)!=="Conforme" ? (parseFloat(r.CANTIDAD_OBSERVADA)||0) : 0), 0);
+  document.getElementById("desg-unidades-obs").textContent = unidObs.toLocaleString("es-PE") + " un.";
+}
+
+/* ---------- Estadísticas diarias (para chart y trend) ---------- */
+function computeDailyStats(rows) {
+  const perDate = {};
+  rows.forEach(r => {
+    const key = /^\d{8}$/.test(r.FECHA_CREACION) ? r.FECHA_CREACION : "Sin fecha";
+    if (!perDate[key]) perDate[key] = { total:0, Conforme:0, Faltante:0, Sobrante:0, "Sin Evaluar":0, evaluadas:0, unidades:0, pedidosSet:new Set() };
+    const est = estatusOf(r);
+    perDate[key][est]++;
+    perDate[key].total++;
+    if (est !== "Sin Evaluar") perDate[key].evaluadas++;
+    perDate[key].unidades += (parseFloat(r.UNIDADES)||0);
+    perDate[key].pedidosSet.add(r.ID_PEDIDO);
+  });
+  const dates = Object.keys(perDate).filter(d => d !== "Sin fecha").sort();
+  return { dates, perDate };
+}
+
+/* ---------- Chart principal (SVG dinámico) ---------- */
+function renderChart(rows) {
+  const svg = document.getElementById("main-chart");
+  const { dates, perDate } = computeDailyStats(rows);
+  const shown = dates.slice(-7);
+  svg.innerHTML = "";
+
+  if (!shown.length) {
+    svg.innerHTML = '<text x="380" y="130" text-anchor="middle" fill="#76777d" font-size="13">Sin datos para graficar en el rango seleccionado</text>';
+    document.getElementById("chart-avg-conforme").textContent = "-";
+    document.getElementById("chart-note").textContent = "";
+    return;
+  }
+
+  const W = 760, H = 260, left = 40, right = 740, top = 30, bottom = 230;
+  const plotW = right - left, plotH = bottom - top;
+  const maxUnidades = Math.max(1, ...shown.map(d => perDate[d].unidades));
+  const maxPedidos = Math.max(1, ...shown.map(d => perDate[d].pedidosSet.size));
+  const slot = plotW / shown.length;
+
+  let svgContent = "";
+  // Grid lines + eje Y (0-100%)
+  [0,25,50,75,100].forEach(pct => {
+    const y = bottom - (pct/100)*plotH;
+    svgContent += `<line x1="${left}" x2="${right}" y1="${y}" y2="${y}" stroke="#c6c6cd" stroke-dasharray="3,3" stroke-opacity="0.25"></line>`;
+    svgContent += `<text x="${left-8}" y="${y+4}" font-size="10" font-weight="600" fill="#76777d" text-anchor="end">${pct}%</text>`;
+  });
+  // Meta line
+  const metaY = bottom - (CONFIG.META_CONFORME/100)*plotH;
+  svgContent += `<line x1="${left}" x2="${right}" y1="${metaY}" y2="${metaY}" stroke="#ba1a1a" stroke-dasharray="4,4" stroke-width="1.5" stroke-opacity="0.6"></line>`;
+
+  const linePoints = [];
+  let sumConforme = 0, countConforme = 0;
+
+  shown.forEach((d, i) => {
+    const info = perDate[d];
+    const cx = left + slot*i + slot/2;
+    const unidBarH = (info.unidades / maxUnidades) * plotH;
+    const pedBarH = (info.pedidosSet.size / maxPedidos) * plotH;
+    const unidW = Math.min(22, slot*0.4);
+    const pedW = Math.min(16, slot*0.28);
+    svgContent += `<rect x="${cx-unidW-2}" y="${bottom-unidBarH}" width="${unidW}" height="${unidBarH}" rx="2" fill="#d3e4fe"></rect>`;
+    svgContent += `<rect x="${cx+2}" y="${bottom-pedBarH}" width="${pedW}" height="${pedBarH}" rx="2" fill="#006398"></rect>`;
+    const dispLabel = /^\d{8}$/.test(d) ? d.slice(6,8)+"/"+d.slice(4,6) : d;
+    svgContent += `<text x="${cx}" y="${bottom+18}" font-size="11" font-weight="600" text-anchor="middle" fill="#45464d">${dispLabel}</text>`;
+
+    const pct = info.evaluadas ? (info.Conforme/info.evaluadas*100) : null;
+    if (pct !== null) {
+      const y = bottom - (pct/100)*plotH;
+      linePoints.push([cx, y, pct]);
+      sumConforme += pct; countConforme++;
+    }
+  });
+
+  if (linePoints.length) {
+    const pathD = "M " + linePoints.map(p => `${p[0]} ${p[1]}`).join(" L ");
+    svgContent += `<path d="${pathD}" fill="none" stroke="#069669" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>`;
+    linePoints.forEach(p => {
+      const good = p[2] >= CONFIG.META_CONFORME;
+      svgContent += `<circle cx="${p[0]}" cy="${p[1]}" r="5" fill="#ffffff" stroke="${good?'#069669':'#ba1a1a'}" stroke-width="3"></circle>`;
+      svgContent += `<text x="${p[0]}" y="${p[1]-10}" font-size="10" font-weight="700" text-anchor="middle" fill="${good?'#069669':'#ba1a1a'}">${p[2].toFixed(1)}%</text>`;
+    });
+  }
+
+  svg.innerHTML = svgContent;
+  document.getElementById("chart-avg-conforme").textContent = countConforme ? (Math.round(sumConforme/countConforme*10)/10)+"%" : "-";
+  document.getElementById("chart-note").innerHTML = '<span class="material-symbols-outlined text-[16px]">info</span> Barras claras = unidades, barras azules = pedidos únicos, línea verde = % conforme.';
+}
+
+/* ---------- Tabla + Paginación ---------- */
+function renderTable(rows) {
+  const tbody = document.getElementById("table-body");
+  tbody.innerHTML = "";
+  const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+  if (currentPage > totalPages) currentPage = totalPages;
+  const startIdx = (currentPage - 1) * pageSize;
+  const pageRows = rows.slice(startIdx, startIdx + pageSize);
+
+  pageRows.forEach(r => {
+    const est = estatusOf(r);
+    const tr = document.createElement("tr");
+    tr.className = "hover:bg-surface-container-low/60 transition-colors";
+    tr.innerHTML = `
+      <td class="py-space-md px-space-md">
+        <div class="flex flex-col">
+          <span class="font-bold text-on-surface font-label-md text-label-md">#${r.ID_PEDIDO}</span>
+          <span class="text-on-surface-variant text-[11px]">${fmtDateDisplay(r.FECHA_CREACION)}</span>
+        </div>
+      </td>
+      <td class="py-space-md px-space-md">
+        <div class="flex flex-col">
+          <span class="font-bold text-on-surface">${r.DOCUMENTO}</span>
+          <span class="text-[11px] text-on-surface-variant">BPCS ${r.PEDIDO_BPCS} • ${r.BODEGA}</span>
+        </div>
+      </td>
+      <td class="py-space-md px-space-md">
+        <div class="flex flex-col">
+          <span class="font-mono text-[12px] font-semibold text-on-surface">${r.CODIGO}</span>
+          <span class="text-[11px] text-on-surface-variant">${r.DESCRIPCION}</span>
+          <span class="text-[10px] text-outline">${r.EAN13}</span>
+        </div>
+      </td>
+      <td class="py-space-md px-space-md text-right font-semibold">${r.UNIDADES}</td>
+      <td class="py-space-md px-space-md text-center">
+        <span class="inline-flex items-center px-space-sm py-1 rounded font-label-sm text-label-sm font-bold ${badgeClass(est)}">${est}</span>
+      </td>
+      <td class="py-space-md px-space-md">
+        <div class="flex flex-col">
+          <span class="text-[12px] text-on-surface">${r.OBSERVACION || "-"}</span>
+          <span class="text-[11px] text-on-surface-variant">${r.PERSONAL_REPORTA || ""}</span>
+        </div>
+      </td>
+      <td class="py-space-md px-space-md text-right">
+        <button class="btn-edit inline-flex items-center gap-1 px-space-sm py-1 rounded bg-surface-container-high hover:bg-secondary-container text-on-surface font-label-sm text-label-sm font-semibold" data-row="${r._sheetRow}" type="button">
+          <span class="material-symbols-outlined text-[16px]">edit</span> Ver / Editar
+        </button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById("table-summary").textContent =
+    `Mostrando ${pageRows.length ? (startIdx+1) : 0}-${startIdx+pageRows.length} de ${rows.length.toLocaleString("es-PE")} pedidos filtrados (${ROWS.length.toLocaleString("es-PE")} en total)`;
+
+  renderPagination(totalPages);
+
+  document.querySelectorAll(".btn-edit").forEach(btn => {
+    btn.addEventListener("click", () => openModal(parseInt(btn.dataset.row, 10)));
+  });
+}
+
+function renderPagination(totalPages) {
+  const box = document.getElementById("pagination-buttons");
+  box.innerHTML = "";
+  const mkBtn = (label, page, disabled, active) => {
+    const b = document.createElement("button");
+    b.textContent = label;
+    b.className = "px-2.5 py-1 rounded text-[12px] font-bold transition-colors " +
+      (active ? "bg-primary-container text-on-primary shadow-xs" : "bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high") +
+      (disabled ? " opacity-40 cursor-not-allowed" : "");
+    if (!disabled) b.addEventListener("click", () => { currentPage = page; renderTable(getFiltered()); });
+    return b;
+  };
+  box.appendChild(mkBtn("«", currentPage - 1, currentPage <= 1, false));
+  const maxButtons = 5;
+  let startP = Math.max(1, currentPage - 2);
+  let endP = Math.min(totalPages, startP + maxButtons - 1);
+  startP = Math.max(1, endP - maxButtons + 1);
+  for (let p = startP; p <= endP; p++) box.appendChild(mkBtn(String(p), p, false, p === currentPage));
+  box.appendChild(mkBtn("»", currentPage + 1, currentPage >= totalPages, false));
+}
+
+function renderAll() {
+  const filtered = getFiltered();
+  renderKPIs(filtered);
+  renderChart(filtered);
+  renderTable(filtered);
+}
+
+/* ---------- Modal de edición ---------- */
+function openModal(sheetRow) {
+  const r = ROWS.find(x => x._sheetRow === sheetRow);
+  if (!r) return;
+  currentEditRow = r;
+  document.getElementById("modal-subtitle").textContent =
+    `Pedido #${r.ID_PEDIDO} • Documento ${r.DOCUMENTO} • ${r.CODIGO} - ${r.DESCRIPCION}`;
+  document.getElementById("f-estatus").value = r.ESTATUS || "";
+  document.getElementById("f-fecha").value = fmtDateInput(r.FECHA);
+  document.getElementById("f-observacion").value = r.OBSERVACION || "";
+  document.getElementById("f-cantidad").value = r.CANTIDAD_OBSERVADA || "";
+  document.getElementById("f-fecharesp").value = fmtDateInput(r.FECHA_RESPUESTA);
+  document.getElementById("f-respdespacho").value = r.RESPUESTA_DESPACHO || "";
+  document.getElementById("f-personal").value = r.PERSONAL_REPORTA || "";
+  document.getElementById("f-fechaalmacen").value = fmtDateInput(r.FECHA_ALMACEN);
+  document.getElementById("f-respalmacen").value = r.RESPUESTA_ALMACEN || "";
+  document.getElementById("f-acciones").value = r.ACCIONES_TOMADAS || "";
+  document.getElementById("save-status").textContent = CONFIG.APPS_SCRIPT_URL ? "" :
+    "Modo solo lectura: configura APPS_SCRIPT_URL para poder guardar.";
+  document.getElementById("modal-save").disabled = !CONFIG.APPS_SCRIPT_URL;
+  document.getElementById("modal-save").classList.toggle("opacity-50", !CONFIG.APPS_SCRIPT_URL);
+  document.getElementById("edit-modal").classList.remove("hidden");
+  document.getElementById("edit-modal").classList.add("flex");
+}
+
+function closeModal() {
+  document.getElementById("edit-modal").classList.add("hidden");
+  document.getElementById("edit-modal").classList.remove("flex");
+  currentEditRow = null;
+}
+
+async function saveModal() {
+  if (!currentEditRow || !CONFIG.APPS_SCRIPT_URL) return;
+  const payload = {
+    action: "update",
+    sheetRow: currentEditRow._sheetRow,
+    idPedido: currentEditRow.ID_PEDIDO,
+    documento: currentEditRow.DOCUMENTO,
+    codigo: currentEditRow.CODIGO,
+    ESTATUS: document.getElementById("f-estatus").value,
+    FECHA: document.getElementById("f-fecha").value,
+    OBSERVACION: document.getElementById("f-observacion").value,
+    CANTIDAD_OBSERVADA: document.getElementById("f-cantidad").value,
+    FECHA_RESPUESTA: document.getElementById("f-fecharesp").value,
+    RESPUESTA_DESPACHO: document.getElementById("f-respdespacho").value,
+    PERSONAL_REPORTA: document.getElementById("f-personal").value,
+    FECHA_ALMACEN: document.getElementById("f-fechaalmacen").value,
+    RESPUESTA_ALMACEN: document.getElementById("f-respalmacen").value,
+    ACCIONES_TOMADAS: document.getElementById("f-acciones").value
+  };
+  const statusEl = document.getElementById("save-status");
+  statusEl.textContent = "Guardando...";
+  try {
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json().catch(() => ({ ok: true }));
+    if (data && data.ok === false) throw new Error(data.error || "Error desconocido");
+    Object.assign(currentEditRow, {
+      ESTATUS: payload.ESTATUS, FECHA: payload.FECHA, OBSERVACION: payload.OBSERVACION,
+      CANTIDAD_OBSERVADA: payload.CANTIDAD_OBSERVADA, FECHA_RESPUESTA: payload.FECHA_RESPUESTA,
+      RESPUESTA_DESPACHO: payload.RESPUESTA_DESPACHO, PERSONAL_REPORTA: payload.PERSONAL_REPORTA,
+      FECHA_ALMACEN: payload.FECHA_ALMACEN, RESPUESTA_ALMACEN: payload.RESPUESTA_ALMACEN,
+      ACCIONES_TOMADAS: payload.ACCIONES_TOMADAS
+    });
+    statusEl.textContent = "Guardado correctamente.";
+    renderAll();
+    setTimeout(closeModal, 700);
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = "Error al guardar: " + err.message;
+  }
+}
+
+/* ---------- Exportar CSV ---------- */
+function exportCSV() {
+  const rows = getFiltered();
+  const headers = ["ID_PEDIDO","FECHA_CREACION","PEDIDO_BPCS","BODEGA","DOCUMENTO","CODIGO","DESCRIPCION","UNIDADES","EAN13","ESTATUS","FECHA","OBSERVACION","CANTIDAD_OBSERVADA","FECHA_RESPUESTA","RESPUESTA_DESPACHO","PERSONAL_REPORTA","FECHA_ALMACEN","RESPUESTA_ALMACEN","ACCIONES_TOMADAS"];
+  const esc = v => `"${String(v||"").replace(/"/g,'""')}"`;
+  const lines = [headers.join(",")];
+  rows.forEach(r => lines.push(headers.map(h => esc(r[h])).join(",")));
+  const blob = new Blob([lines.join("\r\n")], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "control_pedidos_export_" + Date.now() + ".csv";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ---------- Eventos ---------- */
+document.getElementById("sync-btn").addEventListener("click", () => {
+  const icon = document.getElementById("sync-icon");
+  icon.classList.add("spin");
+  loadData().finally(() => icon.classList.remove("spin"));
+});
+document.getElementById("export-btn").addEventListener("click", exportCSV);
+document.getElementById("table-search").addEventListener("input", () => { currentPage = 1; renderAll(); });
+document.getElementById("filter-estatus").addEventListener("change", () => { currentPage = 1; renderAll(); });
+document.getElementById("filter-bodega").addEventListener("change", () => { currentPage = 1; renderAll(); });
+document.getElementById("filter-documento").addEventListener("input", () => { currentPage = 1; renderAll(); });
+document.getElementById("filter-fecha").addEventListener("input", () => { currentPage = 1; renderAll(); });
+document.getElementById("filter-bpcs").addEventListener("input", () => { currentPage = 1; renderAll(); });
+document.getElementById("page-size").addEventListener("change", (e) => { pageSize = parseInt(e.target.value,10); currentPage = 1; renderAll(); });
+document.getElementById("modal-close").addEventListener("click", closeModal);
+document.getElementById("modal-cancel").addEventListener("click", closeModal);
+document.getElementById("modal-save").addEventListener("click", saveModal);
+document.getElementById("edit-modal").addEventListener("click", (e) => { if (e.target.id === "edit-modal") closeModal(); });
+
+loadData();
+</script>
+</body>
+</html>

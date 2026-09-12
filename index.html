@@ -87,6 +87,12 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
         </select>
       </div>
       <div class="relative inline-flex items-center bg-surface-container-low px-space-md py-space-xs rounded-lg shadow-sm">
+        <span class="material-symbols-outlined text-[18px] text-on-surface-variant mr-space-xs">calendar_month</span>
+        <select id="filter-mes" class="bg-transparent font-label-md text-label-md text-on-surface font-semibold focus:outline-none cursor-pointer pr-space-md">
+          <option value="all">Mes: Todos</option>
+        </select>
+      </div>
+      <div class="relative inline-flex items-center bg-surface-container-low px-space-md py-space-xs rounded-lg shadow-sm">
         <span class="material-symbols-outlined text-[18px] text-on-surface-variant mr-space-xs">fact_check</span>
         <select id="filter-estatus" class="bg-transparent font-label-md text-label-md text-on-surface font-semibold focus:outline-none cursor-pointer pr-space-md">
           <option value="all">Estatus: Todos</option>
@@ -351,7 +357,7 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
       </div>
       <div class="flex flex-wrap items-center gap-space-md">
         <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-surface-container-highest"></span><span class="font-label-sm text-label-sm text-on-surface-variant">Unidades (esc.)</span></div>
-        <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-secondary"></span><span class="font-label-sm text-label-sm text-on-surface-variant">Pedidos</span></div>
+        <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-secondary"></span><span class="font-label-sm text-label-sm text-on-surface-variant">Pedidos Únicos (BPCS)</span></div>
         <div class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-on-tertiary-container"></span><span class="w-2 h-2 rounded-full bg-on-tertiary-container -ml-2"></span><span class="font-label-sm text-label-sm text-on-tertiary-container font-bold">% Conforme</span></div>
         <div class="flex items-center gap-1.5"><span class="w-4 h-0.5 bg-error"></span><span class="font-label-sm text-label-sm text-error font-semibold">Meta (95%)</span></div>
       </div>
@@ -434,6 +440,10 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
         </div>
         <p class="font-body-sm text-body-sm text-on-surface-variant">Trazabilidad línea por línea. Haz clic en "Ver / Editar" para registrar estatus y respuestas.</p>
       </div>
+      <button class="inline-flex items-center gap-1 px-space-md py-space-xs rounded-lg bg-surface-container-lowest text-on-surface font-label-md text-label-md font-semibold shadow-sm hover:bg-surface-container-high transition-colors shrink-0" id="btn-clear-filters" type="button">
+        <span class="material-symbols-outlined text-[16px]">filter_alt_off</span>
+        Restablecer Filtros
+      </button>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-sm pt-space-xs">
       <div class="relative flex items-center">
@@ -442,15 +452,15 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
       </div>
       <div class="relative flex items-center">
         <span class="material-symbols-outlined absolute left-3 text-[18px] text-on-surface-variant">description</span>
-        <input class="w-full pl-9 pr-3 py-2 bg-surface-container-lowest rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none shadow-sm" id="filter-documento" placeholder="Filtrar por N° Documento exacto..." type="text">
+        <input class="w-full pl-9 pr-3 py-2 bg-surface-container-lowest rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none shadow-sm" id="filter-documento" placeholder="Filtrar por N° Documento (parcial)..." type="text">
       </div>
       <div class="relative flex items-center">
         <span class="material-symbols-outlined absolute left-3 text-[18px] text-on-surface-variant">event</span>
-        <input class="w-full pl-9 pr-3 py-2 bg-surface-container-lowest rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none shadow-sm" id="filter-fecha" placeholder="Filtrar por fecha (AAAAMMDD)..." type="text">
+        <input class="w-full pl-9 pr-3 py-2 bg-surface-container-lowest rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none shadow-sm" id="filter-fecha" placeholder="Fecha exacta (AAAAMMDD)..." type="text">
       </div>
       <div class="relative flex items-center">
         <span class="material-symbols-outlined absolute left-3 text-[18px] text-on-surface-variant">tag</span>
-        <input class="w-full pl-9 pr-3 py-2 bg-surface-container-lowest rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none shadow-sm" id="filter-bpcs" placeholder="Filtrar por Pedido BPCS..." type="text">
+        <input class="w-full pl-9 pr-3 py-2 bg-surface-container-lowest rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none shadow-sm" id="filter-bpcs" placeholder="Filtrar por Pedido BPCS (parcial)..." type="text">
       </div>
     </div>
     <div class="hidden items-center justify-between gap-space-sm px-space-md py-space-xs rounded-lg bg-secondary-container/25 border border-secondary-container" id="bulk-actions-bar">
@@ -584,8 +594,14 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
         <textarea id="f-acciones" rows="2" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none"></textarea>
       </label>
     </div>
-    <div class="p-space-lg border-t border-outline-variant/30 flex items-center justify-between sticky bottom-0 bg-surface-container-lowest">
-      <span id="save-status" class="font-label-sm text-label-sm text-on-surface-variant"></span>
+    <div class="p-space-lg border-t border-outline-variant/30 flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm sticky bottom-0 bg-surface-container-lowest">
+      <div class="flex flex-col gap-1">
+        <span id="save-status" class="font-label-sm text-label-sm text-on-surface-variant"></span>
+        <div class="flex items-center gap-space-xs" id="edit-password-wrap">
+          <span class="material-symbols-outlined text-[16px] text-on-surface-variant">lock</span>
+          <input id="edit-password" type="password" placeholder="Clave para guardar cambios..." class="px-space-sm py-1.5 bg-surface-container-low rounded-lg text-body-sm focus:outline-none w-56">
+        </div>
+      </div>
       <div class="flex items-center gap-space-sm">
         <button id="modal-cancel" class="px-space-lg py-2 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md font-semibold" type="button">Cancelar</button>
         <button id="modal-save" class="px-space-lg py-2 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-bold shadow-sm" type="button">Guardar Cambios</button>
@@ -614,7 +630,7 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
    ========================================================================= */
 const CONFIG = {
   CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRknwbWoamDOkrY1NP6kRoXUwdRNSvyf5WgCzrjqO-Pu2kTYLwJUkqSGucMASROpVpUyHYQ7ucRtgsu/pub?gid=0&single=true&output=csv",
-  APPS_SCRIPT_URL: "", // Pega aquí la URL del Web App de Code.gs cuando lo despliegues
+  APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbwfuJ3yPQFO4Mm4VflGm0hZpSoJQI8zBdxladbShdJd6BJvFSQk65ApR1VtaHJq3r1N/exec",
   META_CONFORME: 95    // % meta de conformidad, usado en el gráfico y la tarjeta KPI
 };
 
@@ -698,6 +714,20 @@ function badgeClass(estatus) {
   return "badge-sinevaluar";
 }
 
+function actionIcon(estatus) {
+  if (estatus === "Conforme") return "visibility";
+  if (estatus === "Faltante") return "gavel";
+  if (estatus === "Sobrante") return "inventory_2";
+  return "edit";
+}
+
+function actionIconColor(estatus) {
+  if (estatus === "Conforme") return "text-secondary";
+  if (estatus === "Faltante") return "text-error";
+  if (estatus === "Sobrante") return "text-on-tertiary-container";
+  return "text-on-surface-variant";
+}
+
 /* ---------- Carga de datos ---------- */
 async function loadData() {
   setConn("loading");
@@ -714,6 +744,7 @@ async function loadData() {
       return obj;
     });
     populateBodegaFilter();
+    populateMesFilter();
     updateDateRangePill();
     currentPage = 1;
     renderAll();
@@ -747,6 +778,21 @@ function populateBodegaFilter() {
   sel.value = bodegas.includes(current) ? current : "all";
 }
 
+function populateMesFilter() {
+  const sel = document.getElementById("filter-mes");
+  if (!sel) return;
+  const current = sel.value;
+  const monthKeys = Array.from(new Set(
+    ROWS.map(r => r.FECHA_CREACION).filter(d => /^\d{8}$/.test(d)).map(d => d.slice(0, 6))
+  )).sort().reverse(); // meses más recientes primero
+  const options = monthKeys.map(mk => {
+    const y = mk.slice(0, 4), m = parseInt(mk.slice(4, 6), 10);
+    return `<option value="${mk}">${MESES_ES[m - 1]} ${y}</option>`;
+  }).join("");
+  sel.innerHTML = '<option value="all">Mes: Todos</option>' + options;
+  sel.value = monthKeys.includes(current) ? current : "all";
+}
+
 function updateDateRangePill() {
   const dates = ROWS.map(r => r.FECHA_CREACION).filter(d => /^\d{8}$/.test(d)).sort();
   if (!dates.length) { document.getElementById("date-range-label").textContent = "Rango: --"; return; }
@@ -759,15 +805,17 @@ function getFiltered() {
   const q = document.getElementById("table-search").value.toLowerCase().trim();
   const estFilter = document.getElementById("filter-estatus").value;
   const bodegaFilter = document.getElementById("filter-bodega").value;
+  const mesFilter = document.getElementById("filter-mes") ? document.getElementById("filter-mes").value : "all";
   const docFilter = document.getElementById("filter-documento").value.trim();
   const fechaFilter = document.getElementById("filter-fecha").value.trim();
   const bpcsFilter = document.getElementById("filter-bpcs").value.trim();
   return ROWS.filter(r => {
     if (estFilter !== "all" && estatusOf(r) !== estFilter) return false;
     if (bodegaFilter !== "all" && r.BODEGA !== bodegaFilter) return false;
-    if (docFilter && r.DOCUMENTO !== docFilter) return false;
+    if (mesFilter !== "all" && r.FECHA_CREACION.slice(0, 6) !== mesFilter) return false;
+    if (docFilter && !String(r.DOCUMENTO || "").toLowerCase().includes(docFilter.toLowerCase())) return false;
     if (fechaFilter && r.FECHA_CREACION.indexOf(fechaFilter) === -1) return false;
-    if (bpcsFilter && r.PEDIDO_BPCS !== bpcsFilter) return false;
+    if (bpcsFilter && !String(r.PEDIDO_BPCS || "").toLowerCase().includes(bpcsFilter.toLowerCase())) return false;
     if (q) {
       const hay = (r.DOCUMENTO + " " + r.CODIGO + " " + r.DESCRIPCION + " " + r.ID_PEDIDO).toLowerCase();
       if (!hay.includes(q)) return false;
@@ -865,7 +913,7 @@ function computeDailyStats(rows) {
     perDate[key].total++;
     if (est !== "Sin Evaluar") perDate[key].evaluadas++;
     perDate[key].unidades += (parseFloat(r.UNIDADES)||0);
-    perDate[key].pedidosSet.add(r.ID_PEDIDO);
+    perDate[key].pedidosSet.add(r.PEDIDO_BPCS);
   });
   const dates = Object.keys(perDate).filter(d => d !== "Sin fecha").sort();
   return { dates, perDate };
@@ -1037,8 +1085,8 @@ function renderTable(rows) {
         </div>
       </td>
       <td class="py-space-md px-space-md text-right">
-        <button class="btn-edit inline-flex items-center gap-1 px-space-sm py-1 rounded bg-surface-container-high hover:bg-secondary-container text-on-surface font-label-sm text-label-sm font-semibold" data-row="${r._sheetRow}" type="button">
-          <span class="material-symbols-outlined text-[16px]">edit</span> Ver / Editar
+        <button class="btn-edit p-1.5 rounded-lg hover:bg-surface-container-high transition-colors ${actionIconColor(est)}" data-row="${r._sheetRow}" type="button" title="Ver / Editar pedido">
+          <span class="material-symbols-outlined text-[20px]">${actionIcon(est)}</span>
         </button>
       </td>`;
     tbody.appendChild(tr);
@@ -1114,7 +1162,7 @@ function statsFor(rows) {
     s[est] = (s[est] || 0) + 1;
     if (est !== "Sin Evaluar") s.evaluadas++;
     s.unidades += (parseFloat(r.UNIDADES) || 0);
-    s.pedidosSet.add(r.ID_PEDIDO);
+    s.pedidosSet.add(r.PEDIDO_BPCS);
     if (est === "Faltante") s.obsFaltante += (parseFloat(r.CANTIDAD_OBSERVADA) || 0);
     if (est === "Sobrante") s.obsSobrante += (parseFloat(r.CANTIDAD_OBSERVADA) || 0);
   });
@@ -1234,7 +1282,7 @@ function renderOtifTimeCards(baseRows) {
   const verAuditoriaBtn = document.getElementById("otif-atrib-ver-auditoria");
   verAuditoriaBtn.onclick = () => {
     document.getElementById("filter-estatus").value = filterValue;
-    document.getElementById("filter-fecha").value = monthKey;
+    if (document.getElementById("filter-mes")) document.getElementById("filter-mes").value = monthKey;
     currentPage = 1;
     renderAll();
     document.querySelector("#table-search")?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1266,6 +1314,7 @@ function openModal(sheetRow) {
   document.getElementById("f-fechaalmacen").value = fmtDateInput(r.FECHA_ALMACEN);
   document.getElementById("f-respalmacen").value = r.RESPUESTA_ALMACEN || "";
   document.getElementById("f-acciones").value = r.ACCIONES_TOMADAS || "";
+  document.getElementById("edit-password").value = "";
   document.getElementById("save-status").textContent = CONFIG.APPS_SCRIPT_URL ? "" :
     "Modo solo lectura: configura APPS_SCRIPT_URL para poder guardar.";
   document.getElementById("modal-save").disabled = !CONFIG.APPS_SCRIPT_URL;
@@ -1282,8 +1331,16 @@ function closeModal() {
 
 async function saveModal() {
   if (!currentEditRow || !CONFIG.APPS_SCRIPT_URL) return;
+  const password = document.getElementById("edit-password").value;
+  if (!password) {
+    const s = document.getElementById("save-status");
+    s.textContent = "Ingresa la clave de edición para guardar.";
+    s.className = "font-label-sm text-label-sm text-error font-semibold";
+    return;
+  }
   const payload = {
     action: "update",
+    password: password,
     sheetRow: currentEditRow._sheetRow,
     idPedido: currentEditRow.ID_PEDIDO,
     documento: currentEditRow.DOCUMENTO,
@@ -1300,6 +1357,7 @@ async function saveModal() {
     ACCIONES_TOMADAS: document.getElementById("f-acciones").value
   };
   const statusEl = document.getElementById("save-status");
+  statusEl.className = "font-label-sm text-label-sm text-on-surface-variant";
   statusEl.textContent = "Guardando...";
   try {
     const res = await fetch(CONFIG.APPS_SCRIPT_URL, {
@@ -1316,12 +1374,14 @@ async function saveModal() {
       FECHA_ALMACEN: payload.FECHA_ALMACEN, RESPUESTA_ALMACEN: payload.RESPUESTA_ALMACEN,
       ACCIONES_TOMADAS: payload.ACCIONES_TOMADAS
     });
+    statusEl.className = "font-label-sm text-label-sm text-on-tertiary-container font-semibold";
     statusEl.textContent = "Guardado correctamente.";
     showToast("Cambios guardados", "Pedido #" + (currentEditRow.ID_PEDIDO || "") + " actualizado en el Sheet.");
     renderAll();
     setTimeout(closeModal, 700);
   } catch (err) {
     console.error(err);
+    statusEl.className = "font-label-sm text-label-sm text-error font-semibold";
     statusEl.textContent = "Error al guardar: " + err.message;
   }
 }
@@ -1387,10 +1447,23 @@ document.getElementById("bulk-clear-btn").addEventListener("click", () => {
 document.getElementById("table-search").addEventListener("input", () => { currentPage = 1; renderAll(); });
 document.getElementById("filter-estatus").addEventListener("change", () => { currentPage = 1; renderAll(); });
 document.getElementById("filter-bodega").addEventListener("change", () => { currentPage = 1; renderAll(); });
+document.getElementById("filter-mes").addEventListener("change", () => { currentPage = 1; renderAll(); });
 document.getElementById("filter-documento").addEventListener("input", () => { currentPage = 1; renderAll(); });
 document.getElementById("filter-fecha").addEventListener("input", () => { currentPage = 1; renderAll(); });
 document.getElementById("filter-bpcs").addEventListener("input", () => { currentPage = 1; renderAll(); });
 document.getElementById("page-size").addEventListener("change", (e) => { pageSize = parseInt(e.target.value,10); currentPage = 1; renderAll(); });
+document.getElementById("btn-clear-filters").addEventListener("click", () => {
+  document.getElementById("table-search").value = "";
+  document.getElementById("filter-documento").value = "";
+  document.getElementById("filter-fecha").value = "";
+  document.getElementById("filter-bpcs").value = "";
+  document.getElementById("filter-estatus").value = "all";
+  document.getElementById("filter-bodega").value = "all";
+  if (document.getElementById("filter-mes")) document.getElementById("filter-mes").value = "all";
+  currentPage = 1;
+  renderAll();
+  showToast("Filtros restablecidos", "Mostrando la totalidad de pedidos disponibles.");
+});
 document.getElementById("modal-close").addEventListener("click", closeModal);
 document.getElementById("modal-cancel").addEventListener("click", closeModal);
 document.getElementById("modal-save").addEventListener("click", saveModal);

@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script id="tailwind-config">
 tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-fixed":"#002114","on-primary":"#ffffff","surface-container":"#e5eeff","inverse-on-surface":"#eaf1ff","secondary-container":"#5bb8fe","surface-container-highest":"#d3e4fe","on-secondary-fixed-variant":"#004b73","surface-container-high":"#dce9ff","secondary":"#006398","surface-tint":"#565e74","tertiary-fixed-dim":"#68dba9","on-secondary-fixed":"#001d31","outline-variant":"#c6c6cd","on-tertiary-container":"#069669","primary-fixed-dim":"#bec6e0","error":"#ba1a1a","on-secondary-container":"#00476e","on-error-container":"#93000a","on-primary-container":"#7c839b","surface-dim":"#cbdbf5","inverse-primary":"#bec6e0","secondary-fixed":"#cce5ff","secondary-fixed-dim":"#93ccff","on-primary-fixed":"#131b2e","tertiary-container":"#002114","primary-fixed":"#dae2fd","on-tertiary-fixed-variant":"#005137","tertiary-fixed":"#85f8c4","background":"#f8f9ff","surface":"#f8f9ff","surface-bright":"#f8f9ff","surface-variant":"#d3e4fe","on-surface-variant":"#45464d","tertiary":"#000000","on-primary-fixed-variant":"#3f465c","surface-container-low":"#eff4ff","on-error":"#ffffff","primary":"#000000","on-background":"#0b1c30","on-tertiary":"#ffffff","outline":"#76777d","primary-container":"#131b2e","on-surface":"#0b1c30","on-secondary":"#ffffff","inverse-surface":"#213145","surface-container-lowest":"#ffffff","error-container":"#ffdad6"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"space-sm":"0.5rem","space-lg":"1.25rem","margin":"2rem","space-md":"0.75rem","gutter":"1.25rem","gutter-mobile":"0.75rem","space-xl":"1.75rem","space-xs":"0.25rem","margin-mobile":"1rem"},fontFamily:{"label-sm":["Hanken Grotesk"],"label-md":["Hanken Grotesk"],"display-lg-mobile":["Hanken Grotesk"],"body-sm":["Hanken Grotesk"],"metric-headline":["Hanken Grotesk"],"headline-xl":["Hanken Grotesk"],"headline-md":["Hanken Grotesk"],"title-sm":["Hanken Grotesk"],"display-lg":["Hanken Grotesk"],"headline-lg":["Hanken Grotesk"],"body-md":["Hanken Grotesk"],"body-lg":["Hanken Grotesk"],"metric-headline-mobile":["Hanken Grotesk"]},fontSize:{"label-sm":["11px",{lineHeight:"14px",letterSpacing:"0.04em",fontWeight:"600"}],"label-md":["12px",{lineHeight:"16px",letterSpacing:"0.02em",fontWeight:"600"}],"display-lg-mobile":["28px",{lineHeight:"36px",letterSpacing:"-0.02em",fontWeight:"700"}],"body-sm":["12px",{lineHeight:"16px",fontWeight:"400"}],"metric-headline":["32px",{lineHeight:"38px",letterSpacing:"-0.02em",fontWeight:"700"}],"headline-xl":["28px",{lineHeight:"36px",letterSpacing:"-0.02em",fontWeight:"600"}],"headline-md":["18px",{lineHeight:"24px",letterSpacing:"-0.01em",fontWeight:"600"}],"title-sm":["15px",{lineHeight:"20px",letterSpacing:"-0.005em",fontWeight:"600"}],"display-lg":["36px",{lineHeight:"44px",letterSpacing:"-0.025em",fontWeight:"700"}],"headline-lg":["22px",{lineHeight:"30px",letterSpacing:"-0.015em",fontWeight:"600"}],"body-md":["13px",{lineHeight:"18px",fontWeight:"400"}],"body-lg":["15px",{lineHeight:"22px",fontWeight:"400"}],"metric-headline-mobile":["24px",{lineHeight:"30px",letterSpacing:"-0.015em",fontWeight:"700"}]}}}};
 </script>
@@ -21,6 +22,13 @@ tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-fixed":"#0
 .badge-sinevaluar{background:#eff4ff;color:#45464d;}
 .spin{animation:spin 1s linear infinite;}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.fade-highlight{animation:highlight-pulse 1.2s ease-out;}
+@keyframes highlight-pulse{0%{background-color:rgba(91,184,254,0.35);}100%{background-color:transparent;}}
+.row-checkbox, #select-all-rows{width:16px;height:16px;accent-color:#006398;cursor:pointer;}
+#chart-tooltip{transition:opacity .12s ease;}
+.chart-day-group{cursor:pointer;}
+.chart-day-group:hover rect{opacity:.85;}
+tr.row-selected{background-color:rgba(91,184,254,0.12);}
 </style>
 </head>
 <body class="bg-surface font-body-md text-body-md text-on-surface antialiased">
@@ -92,9 +100,13 @@ tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-fixed":"#0
         <span class="material-symbols-outlined text-[18px] text-secondary" id="sync-icon">sync</span>
         <span>Sincronizar Sheet</span>
       </button>
-      <button class="inline-flex items-center gap-space-xs px-space-md py-space-xs rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-bold shadow-md hover:opacity-90 transition-opacity" id="export-btn" type="button">
-        <span class="material-symbols-outlined text-[18px]">ios_share</span>
+      <button class="inline-flex items-center gap-space-xs px-space-md py-space-xs rounded-lg bg-surface-container-high hover:bg-surface-container-highest transition-colors text-on-surface font-label-md text-label-md font-bold shadow-sm" id="export-btn" type="button">
+        <span class="material-symbols-outlined text-[18px]">description</span>
         <span>Exportar CSV</span>
+      </button>
+      <button class="inline-flex items-center gap-space-xs px-space-md py-space-xs rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-bold shadow-md hover:opacity-90 transition-opacity" id="export-xlsx-btn" type="button">
+        <span class="material-symbols-outlined text-[18px]">ios_share</span>
+        <span>Exportar Excel</span>
       </button>
     </div>
   </div>
@@ -103,10 +115,135 @@ tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-fixed":"#0
 <!-- ========================= MAIN BODY CONTENT ========================= -->
 <div class="w-full px-margin py-space-lg flex flex-col gap-space-xl">
 
+<!-- ---------------------- OTIF POR RANGO DE TIEMPO (4) ---------------------- -->
+<section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-lg">
+  <!-- OTIF Día en Curso (Hoy) -->
+  <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-all" id="otif-card-today">
+    <div class="absolute top-0 left-0 w-1.5 h-full bg-on-tertiary-container"></div>
+    <div class="flex flex-col gap-space-xs">
+      <div class="flex items-center justify-between">
+        <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">OTIF Día en Curso (Hoy)</span>
+        <span class="px-space-xs py-0.5 rounded bg-surface-container-high font-label-sm text-label-sm text-on-surface font-bold" id="otif-today-meta-badge">Meta: ≥95.0%</span>
+      </div>
+      <div class="flex items-baseline gap-space-md mt-space-xs">
+        <span class="font-metric-headline text-metric-headline font-bold text-on-surface tracking-tight" id="otif-today-pct">-</span>
+        <div class="inline-flex items-center gap-0.5 px-space-xs py-0.5 rounded font-label-sm text-label-sm font-bold" id="otif-today-trend">
+          <span class="material-symbols-outlined text-[14px]" id="otif-today-trend-icon">trending_flat</span>
+          <span id="otif-today-trend-txt">sin dato previo</span>
+        </div>
+      </div>
+      <span class="font-label-sm text-[11px] text-on-surface-variant" id="otif-today-date">Sin fecha detectada</span>
+    </div>
+    <div class="mt-space-md flex flex-col gap-space-xs">
+      <div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden flex">
+        <div class="h-full bg-on-tertiary-container" id="otif-today-bar" style="width:0%"></div>
+        <div class="h-full bg-error" id="otif-today-bar-gap" style="width:0%"></div>
+      </div>
+      <div class="flex justify-between items-center text-[11px] font-label-sm text-on-surface-variant mt-1">
+        <span>Despachados: <strong class="text-on-surface" id="otif-today-desp">0</strong></span>
+        <span>Cumplidos OTIF: <strong class="text-on-tertiary-container font-semibold" id="otif-today-cumpl">0</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- OTIF Lapso 7 Días (Semana Móvil) -->
+  <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-all" id="otif-card-7d">
+    <div class="absolute top-0 left-0 w-1.5 h-full bg-secondary-container"></div>
+    <div class="flex flex-col gap-space-xs">
+      <div class="flex items-center justify-between">
+        <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">OTIF Lapso 7 Días (Semana Móvil)</span>
+        <span class="px-space-xs py-0.5 rounded bg-surface-container-high font-label-sm text-label-sm text-on-surface font-bold">Meta: ≥95.0%</span>
+      </div>
+      <div class="flex items-baseline gap-space-md mt-space-xs">
+        <span class="font-metric-headline text-metric-headline font-bold text-on-surface tracking-tight" id="otif-7d-pct">-</span>
+        <div class="inline-flex items-center gap-0.5 px-space-xs py-0.5 rounded font-label-sm text-label-sm font-bold" id="otif-7d-trend">
+          <span class="material-symbols-outlined text-[14px]" id="otif-7d-trend-icon">trending_flat</span>
+          <span id="otif-7d-trend-txt">sin dato previo</span>
+        </div>
+      </div>
+      <span class="font-label-sm text-[11px] text-on-surface-variant" id="otif-7d-range">Sin rango detectado</span>
+    </div>
+    <div class="mt-space-md flex flex-col gap-space-xs">
+      <div class="flex justify-between items-center font-label-sm text-label-sm text-on-surface-variant">
+        <span>Brecha de cumplimiento:</span>
+        <span class="font-bold" id="otif-7d-gap">-</span>
+      </div>
+      <div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden flex">
+        <div class="h-full bg-secondary" id="otif-7d-bar" style="width:0%"></div>
+        <div class="h-full bg-error" id="otif-7d-bar-gap" style="width:0%"></div>
+      </div>
+      <div class="flex justify-between items-center text-[11px] font-label-sm text-on-surface-variant mt-1">
+        <span>Total Pedidos: <strong class="text-on-surface" id="otif-7d-total">0</strong></span>
+        <span>Con Quiebre: <strong class="text-error font-semibold" id="otif-7d-quiebre">0 ped.</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- OTIF Mensual Acumulado (MTD) -->
+  <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-all" id="otif-card-month">
+    <div class="absolute top-0 left-0 w-1.5 h-full bg-on-tertiary-container"></div>
+    <div class="flex flex-col gap-space-xs">
+      <div class="flex items-center justify-between">
+        <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">OTIF Mensual Acumulado (MTD)</span>
+        <span class="px-space-xs py-0.5 rounded bg-surface-container-high font-label-sm text-label-sm text-on-surface font-bold" id="otif-month-label">-</span>
+      </div>
+      <div class="flex items-baseline gap-space-md mt-space-xs">
+        <span class="font-metric-headline text-metric-headline font-bold text-on-surface tracking-tight" id="otif-month-pct">-</span>
+        <div class="inline-flex items-center gap-0.5 px-space-xs py-0.5 rounded font-label-sm text-label-sm font-bold" id="otif-month-trend">
+          <span class="material-symbols-outlined text-[14px]" id="otif-month-trend-icon">trending_flat</span>
+          <span id="otif-month-trend-txt">sin dato previo</span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-space-md flex flex-col gap-space-xs">
+      <div class="flex justify-between items-center font-label-sm text-label-sm text-on-surface-variant">
+        <span>Volumen Consolidado:</span>
+        <span class="font-bold" id="otif-month-gap">-</span>
+      </div>
+      <div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden flex">
+        <div class="h-full bg-on-tertiary-container" id="otif-month-bar" style="width:0%"></div>
+      </div>
+      <div class="flex justify-between items-center text-[11px] font-label-sm text-on-surface-variant mt-1">
+        <span>Total: <strong class="text-on-surface" id="otif-month-total">0 pedidos</strong></span>
+        <span><strong class="text-on-surface" id="otif-month-unidades">0</strong> unidades</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Atribución Dominante de Fallas -->
+  <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-all" id="otif-card-atrib">
+    <div class="absolute top-0 left-0 w-1.5 h-full bg-secondary"></div>
+    <div class="flex flex-col gap-space-xs">
+      <div class="flex items-center justify-between">
+        <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Atribución Dominante de Fallas</span>
+        <span class="px-space-xs py-0.5 rounded bg-surface-container text-secondary font-label-sm text-label-sm font-bold" id="otif-atrib-badge">0% Quiebre</span>
+      </div>
+      <div class="flex flex-col mt-space-xs">
+        <span class="font-headline-md text-headline-md font-bold text-on-surface leading-snug" id="otif-atrib-title">Sin incidencias</span>
+        <span class="font-label-sm text-label-sm text-error font-semibold" id="otif-atrib-subtitle">0% de incidencias del período</span>
+      </div>
+    </div>
+    <div class="mt-space-md flex flex-col gap-space-xs">
+      <div class="flex items-center justify-between text-[11px] font-label-sm text-on-surface-variant">
+        <span id="otif-atrib-other1">Sobrantes: 0%</span>
+        <span id="otif-atrib-other2">Sin evaluar: 0%</span>
+      </div>
+      <div class="w-full h-2 rounded-full overflow-hidden flex bg-surface-container-low" id="otif-atrib-bar-wrap">
+        <div class="h-full bg-error" id="otif-atrib-bar-faltante" style="width:0%"></div>
+        <div class="h-full bg-secondary" id="otif-atrib-bar-sobrante" style="width:0%"></div>
+      </div>
+      <div class="flex justify-between items-center text-[11px] font-label-sm text-on-surface-variant mt-1">
+        <span>Impacto directo: <strong class="text-on-surface" id="otif-atrib-impacto">0 unidades</strong></span>
+        <button class="text-secondary font-bold hover:underline cursor-pointer" id="otif-atrib-ver-auditoria" type="button">Ver auditoría</button>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ---------------------- KPI CARDS (4) ---------------------- -->
 <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-lg">
   <!-- Card 1: Total pedidos -->
-  <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+  <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-all" id="kpi-card-total">
     <div class="absolute top-0 left-0 w-1.5 h-full bg-on-surface"></div>
     <div class="flex flex-col gap-space-xs">
       <div class="flex items-center justify-between">
@@ -134,7 +271,7 @@ tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-fixed":"#0
   </div>
 
   <!-- Card 2: % Conforme -->
-  <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+  <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-all" id="kpi-card-conforme">
     <div class="absolute top-0 left-0 w-1.5 h-full bg-on-tertiary-container"></div>
     <div class="flex flex-col gap-space-xs">
       <div class="flex items-center justify-between">
@@ -162,7 +299,7 @@ tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-fixed":"#0
   </div>
 
   <!-- Card 3: Faltantes -->
-  <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+  <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-all" id="kpi-card-faltante">
     <div class="absolute top-0 left-0 w-1.5 h-full bg-error"></div>
     <div class="flex flex-col gap-space-xs">
       <div class="flex items-center justify-between">
@@ -181,7 +318,7 @@ tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-fixed":"#0
   </div>
 
   <!-- Card 4: Sobrantes -->
-  <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+  <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-all" id="kpi-card-sobrante">
     <div class="absolute top-0 left-0 w-1.5 h-full bg-secondary"></div>
     <div class="flex flex-col gap-space-xs">
       <div class="flex items-center justify-between">
@@ -220,6 +357,22 @@ tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-fixed":"#0
       </div>
     </div>
     <div class="relative w-full h-[320px] bg-surface-container-low/50 rounded-lg p-space-md flex flex-col justify-between overflow-hidden">
+      <div class="absolute right-4 top-[10%] z-10 bg-surface-container-lowest/90 px-2 py-0.5 rounded shadow-sm flex items-center gap-1" id="chart-meta-watermark">
+        <span class="w-2 h-0.5 bg-error"></span>
+        <span class="font-label-sm text-[10px] font-bold text-error uppercase" id="chart-meta-label">Meta 95.0%</span>
+      </div>
+      <div id="chart-tooltip" class="absolute z-30 pointer-events-none bg-surface-container-lowest border border-outline-variant shadow-lg p-3 rounded-lg text-xs opacity-0 -translate-x-1/2 -translate-y-full">
+        <div class="font-bold text-on-surface border-b border-outline-variant/30 pb-1 mb-1.5 flex items-center justify-between gap-4">
+          <span class="text-secondary font-bold" id="tooltip-day">Fecha</span>
+          <span class="text-on-tertiary-container font-bold" id="tooltip-pct">--% Conforme</span>
+        </div>
+        <div class="flex flex-col gap-0.5 text-[11px] text-on-surface-variant">
+          <div class="flex justify-between gap-3"><span>Pedidos únicos:</span><b class="text-on-surface" id="tooltip-orders">--</b></div>
+          <div class="flex justify-between gap-3"><span>Unidades:</span><b class="text-on-surface" id="tooltip-units">--</b></div>
+          <div class="flex justify-between gap-3"><span>Evaluadas:</span><b class="text-on-surface" id="tooltip-evaluadas">--</b></div>
+          <div class="flex justify-between gap-3 text-error"><span>Faltante/Sobrante:</span><b id="tooltip-desvios">--</b></div>
+        </div>
+      </div>
       <svg id="main-chart" class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 760 260"></svg>
     </div>
     <div class="flex items-center justify-between pt-space-sm text-on-surface-variant font-label-sm text-label-sm">
@@ -300,15 +453,27 @@ tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-fixed":"#0
         <input class="w-full pl-9 pr-3 py-2 bg-surface-container-lowest rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none shadow-sm" id="filter-bpcs" placeholder="Filtrar por Pedido BPCS..." type="text">
       </div>
     </div>
+    <div class="hidden items-center justify-between gap-space-sm px-space-md py-space-xs rounded-lg bg-secondary-container/25 border border-secondary-container" id="bulk-actions-bar">
+      <span class="font-label-sm text-label-sm font-semibold text-on-surface"><strong id="bulk-count">0</strong> pedido(s) seleccionado(s)</span>
+      <div class="flex items-center gap-space-xs">
+        <button class="inline-flex items-center gap-1 px-space-sm py-1 rounded-lg bg-surface-container-lowest text-on-surface font-label-sm text-label-sm font-semibold shadow-sm hover:bg-surface-container-high transition-colors" id="bulk-export-btn" type="button">
+          <span class="material-symbols-outlined text-[16px]">ios_share</span> Exportar seleccionados (Excel)
+        </button>
+        <button class="inline-flex items-center gap-1 px-space-sm py-1 rounded-lg bg-surface-container-lowest text-on-surface-variant font-label-sm text-label-sm font-semibold shadow-sm hover:bg-surface-container-high transition-colors" id="bulk-clear-btn" type="button">
+          <span class="material-symbols-outlined text-[16px]">close</span> Limpiar
+        </button>
+      </div>
+    </div>
   </div>
 
   <div class="w-full overflow-x-auto">
     <table class="w-full text-left border-collapse">
       <thead>
         <tr class="bg-surface-container-high/60 text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
-          <th class="py-space-md px-space-md font-bold">N° Pedido / Fecha Creación</th>
-          <th class="py-space-md px-space-md font-bold">Documento / BPCS / Bodega</th>
-          <th class="py-space-md px-space-md font-bold">Código / Descripción / EAN</th>
+          <th class="py-space-md px-space-md font-bold w-10"><input type="checkbox" id="select-all-rows" title="Seleccionar todos los pedidos filtrados"></th>
+          <th class="py-space-md px-space-md font-bold">Fecha Creación / Bodega</th>
+          <th class="py-space-md px-space-md font-bold">BPCS / Documento</th>
+          <th class="py-space-md px-space-md font-bold">Código - EAN / Descripción</th>
           <th class="py-space-md px-space-md font-bold text-right">Unidades</th>
           <th class="py-space-md px-space-md font-bold text-center">Estatus</th>
           <th class="py-space-md px-space-md font-bold">Observación / Personal</th>
@@ -429,6 +594,20 @@ tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-fixed":"#0
   </div>
 </div>
 
+<!-- ============================ TOAST FLOTANTE ============================ -->
+<div id="live-toast" class="fixed bottom-6 right-6 z-[110] transform translate-y-16 opacity-0 transition-all duration-300 pointer-events-none">
+  <div class="flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary rounded-xl shadow-xl border border-secondary-container/20">
+    <div class="w-2.5 h-2.5 rounded-full bg-tertiary-fixed animate-ping shrink-0"></div>
+    <div class="flex flex-col">
+      <span class="font-label-md text-xs font-bold text-on-primary" id="toast-title">Listo</span>
+      <span class="text-[11px] text-primary-fixed" id="toast-message">Acción completada</span>
+    </div>
+    <button class="ml-2 text-primary-fixed hover:text-white pointer-events-auto" onclick="hideToast()" type="button">
+      <span class="material-symbols-outlined text-[16px]">close</span>
+    </button>
+  </div>
+</div>
+
 <script>
 /* =========================================================================
    CONFIGURACIÓN - EDITA ESTOS DOS VALORES
@@ -446,6 +625,26 @@ let ROWS = [];
 let currentEditRow = null;
 let currentPage = 1;
 let pageSize = 10;
+let selectedRows = new Set(); // guarda _sheetRow de los pedidos seleccionados
+
+/* ---------- Toast utilitario ---------- */
+let toastTimeoutId = null;
+function showToast(title, message) {
+  const toast = document.getElementById("live-toast");
+  if (!toast) return;
+  document.getElementById("toast-title").textContent = title;
+  document.getElementById("toast-message").textContent = message;
+  toast.classList.remove("translate-y-16", "opacity-0", "pointer-events-none");
+  toast.classList.add("translate-y-0", "opacity-100", "pointer-events-auto");
+  clearTimeout(toastTimeoutId);
+  toastTimeoutId = setTimeout(hideToast, 3500);
+}
+function hideToast() {
+  const toast = document.getElementById("live-toast");
+  if (!toast) return;
+  toast.classList.add("translate-y-16", "opacity-0", "pointer-events-none");
+  toast.classList.remove("translate-y-0", "opacity-100", "pointer-events-auto");
+}
 
 /* ---------- CSV parsing (soporta comillas y comas dentro de campos) ---------- */
 function parseCSV(text) {
@@ -485,9 +684,12 @@ function fmtDateDisplay(v) {
   return `${d}/${m}/${y}`;
 }
 
+const KS_COLUMNS = ["FECHA","OBSERVACION","CANTIDAD_OBSERVADA","FECHA_RESPUESTA","RESPUESTA_DESPACHO","PERSONAL_REPORTA","FECHA_ALMACEN","RESPUESTA_ALMACEN","ACCIONES_TOMADAS"];
 function estatusOf(r) {
   const e = (r.ESTATUS || "").trim();
-  return e === "" ? "Sin Evaluar" : e;
+  if (e !== "") return e;
+  const algoLlenado = KS_COLUMNS.some(k => (r[k] || "").trim() !== "");
+  return algoLlenado ? "Sin Evaluar" : "Conforme";
 }
 function badgeClass(estatus) {
   if (estatus === "Conforme") return "badge-conforme";
@@ -517,9 +719,15 @@ async function loadData() {
     renderAll();
     setConn("ok");
     document.getElementById("footer-sync-time").textContent = new Date().toLocaleTimeString("es-PE");
+    showToast("Sincronización completada", ROWS.length.toLocaleString("es-PE") + " líneas cargadas desde el Sheet.");
+    ["kpi-card-total","kpi-card-conforme","kpi-card-faltante","kpi-card-sobrante"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.classList.add("fade-highlight"); setTimeout(() => el.classList.remove("fade-highlight"), 1200); }
+    });
   } catch (err) {
     console.error(err);
     setConn("error");
+    showToast("Error de sincronización", "No se pudo leer el Sheet. Revisa el CSV_URL y tu conexión.");
   }
 }
 
@@ -683,7 +891,21 @@ function renderChart(rows) {
   const maxPedidos = Math.max(1, ...shown.map(d => perDate[d].pedidosSet.size));
   const slot = plotW / shown.length;
 
-  let svgContent = "";
+  document.getElementById("chart-meta-label").textContent = "Meta " + CONFIG.META_CONFORME.toFixed(1) + "%";
+
+  let svgContent = `<defs>
+    <linearGradient id="barGradUnidades" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#d3e4fe" stop-opacity="0.95"></stop>
+      <stop offset="100%" stop-color="#cbdbf5" stop-opacity="0.5"></stop>
+    </linearGradient>
+    <linearGradient id="barGradPedidos" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#006398" stop-opacity="0.95"></stop>
+      <stop offset="100%" stop-color="#006398" stop-opacity="0.65"></stop>
+    </linearGradient>
+    <filter id="lineGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#069669" flood-opacity="0.3"></feDropShadow>
+    </filter>
+  </defs>`;
   // Grid lines + eje Y (0-100%)
   [0,25,50,75,100].forEach(pct => {
     const y = bottom - (pct/100)*plotH;
@@ -704,10 +926,15 @@ function renderChart(rows) {
     const pedBarH = (info.pedidosSet.size / maxPedidos) * plotH;
     const unidW = Math.min(22, slot*0.4);
     const pedW = Math.min(16, slot*0.28);
-    svgContent += `<rect x="${cx-unidW-2}" y="${bottom-unidBarH}" width="${unidW}" height="${unidBarH}" rx="2" fill="#d3e4fe"></rect>`;
-    svgContent += `<rect x="${cx+2}" y="${bottom-pedBarH}" width="${pedW}" height="${pedBarH}" rx="2" fill="#006398"></rect>`;
     const dispLabel = /^\d{8}$/.test(d) ? d.slice(6,8)+"/"+d.slice(4,6) : d;
-    svgContent += `<text x="${cx}" y="${bottom+18}" font-size="11" font-weight="600" text-anchor="middle" fill="#45464d">${dispLabel}</text>`;
+    const pctForTip = info.evaluadas ? (info.Conforme/info.evaluadas*100).toFixed(1) : "s/d";
+    const desvios = (info.Faltante||0) + (info.Sobrante||0);
+    svgContent += `<g class="chart-day-group transition-opacity" data-day="${dispLabel}" data-pct="${pctForTip}%" data-orders="${info.pedidosSet.size}" data-units="${Math.round(info.unidades).toLocaleString('es-PE')}" data-eval="${info.evaluadas}/${info.total}" data-desvios="${desvios}">
+      <rect x="${cx-unidW-2}" y="${bottom-unidBarH}" width="${unidW}" height="${unidBarH}" rx="2" fill="url(#barGradUnidades)"></rect>
+      <rect x="${cx+2}" y="${bottom-pedBarH}" width="${pedW}" height="${pedBarH}" rx="2" fill="url(#barGradPedidos)"></rect>
+      <rect x="${cx-unidW-6}" y="${top}" width="${unidW+pedW+8}" height="${bottom-top}" fill="transparent"></rect>
+      <text x="${cx}" y="${bottom+18}" font-size="11" font-weight="600" text-anchor="middle" fill="#45464d">${dispLabel}</text>
+    </g>`;
 
     const pct = info.evaluadas ? (info.Conforme/info.evaluadas*100) : null;
     if (pct !== null) {
@@ -719,7 +946,7 @@ function renderChart(rows) {
 
   if (linePoints.length) {
     const pathD = "M " + linePoints.map(p => `${p[0]} ${p[1]}`).join(" L ");
-    svgContent += `<path d="${pathD}" fill="none" stroke="#069669" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>`;
+    svgContent += `<path d="${pathD}" fill="none" stroke="#069669" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#lineGlow)"></path>`;
     linePoints.forEach(p => {
       const good = p[2] >= CONFIG.META_CONFORME;
       svgContent += `<circle cx="${p[0]}" cy="${p[1]}" r="5" fill="#ffffff" stroke="${good?'#069669':'#ba1a1a'}" stroke-width="3"></circle>`;
@@ -728,8 +955,39 @@ function renderChart(rows) {
   }
 
   svg.innerHTML = svgContent;
+  setupChartTooltips();
   document.getElementById("chart-avg-conforme").textContent = countConforme ? (Math.round(sumConforme/countConforme*10)/10)+"%" : "-";
   document.getElementById("chart-note").innerHTML = '<span class="material-symbols-outlined text-[16px]">info</span> Barras claras = unidades, barras azules = pedidos únicos, línea verde = % conforme.';
+}
+
+/* ---------- Tooltip interactivo del gráfico ---------- */
+function setupChartTooltips() {
+  const tooltip = document.getElementById("chart-tooltip");
+  const container = tooltip ? tooltip.parentElement : null;
+  const groups = document.querySelectorAll(".chart-day-group");
+  if (!tooltip || !container || !groups.length) return;
+
+  groups.forEach(g => {
+    g.addEventListener("mouseenter", () => {
+      document.getElementById("tooltip-day").textContent = g.getAttribute("data-day");
+      document.getElementById("tooltip-pct").textContent = g.getAttribute("data-pct") + " Conforme";
+      document.getElementById("tooltip-orders").textContent = g.getAttribute("data-orders") + " ped.";
+      document.getElementById("tooltip-units").textContent = g.getAttribute("data-units") + " un.";
+      document.getElementById("tooltip-evaluadas").textContent = g.getAttribute("data-eval");
+      document.getElementById("tooltip-desvios").textContent = g.getAttribute("data-desvios") + " líneas";
+      tooltip.classList.remove("opacity-0");
+      tooltip.classList.add("opacity-100");
+    });
+    g.addEventListener("mousemove", (e) => {
+      const rect = container.getBoundingClientRect();
+      tooltip.style.left = (e.clientX - rect.left) + "px";
+      tooltip.style.top = (e.clientY - rect.top - 12) + "px";
+    });
+    g.addEventListener("mouseleave", () => {
+      tooltip.classList.remove("opacity-100");
+      tooltip.classList.add("opacity-0");
+    });
+  });
 }
 
 /* ---------- Tabla + Paginación ---------- */
@@ -744,25 +1002,28 @@ function renderTable(rows) {
   pageRows.forEach(r => {
     const est = estatusOf(r);
     const tr = document.createElement("tr");
-    tr.className = "hover:bg-surface-container-low/60 transition-colors";
+    const isSelected = selectedRows.has(r._sheetRow);
+    tr.className = "hover:bg-surface-container-low/60 transition-colors" + (isSelected ? " row-selected" : "");
     tr.innerHTML = `
       <td class="py-space-md px-space-md">
+        <input type="checkbox" class="row-checkbox" data-row="${r._sheetRow}" ${isSelected ? "checked" : ""}>
+      </td>
+      <td class="py-space-md px-space-md">
         <div class="flex flex-col">
-          <span class="font-bold text-on-surface font-label-md text-label-md">#${r.ID_PEDIDO}</span>
-          <span class="text-on-surface-variant text-[11px]">${fmtDateDisplay(r.FECHA_CREACION)}</span>
+          <span class="font-bold text-on-surface font-label-md text-label-md">${fmtDateDisplay(r.FECHA_CREACION)}</span>
+          <span class="text-on-surface-variant text-[11px]">${r.BODEGA}</span>
         </div>
       </td>
       <td class="py-space-md px-space-md">
         <div class="flex flex-col">
-          <span class="font-bold text-on-surface">${r.DOCUMENTO}</span>
-          <span class="text-[11px] text-on-surface-variant">BPCS ${r.PEDIDO_BPCS} • ${r.BODEGA}</span>
+          <span class="font-bold text-on-surface">${r.PEDIDO_BPCS}</span>
+          <span class="text-[11px] text-on-surface-variant">${r.DOCUMENTO}</span>
         </div>
       </td>
       <td class="py-space-md px-space-md">
         <div class="flex flex-col">
-          <span class="font-mono text-[12px] font-semibold text-on-surface">${r.CODIGO}</span>
+          <span class="font-mono text-[12px] font-semibold text-on-surface">${r.CODIGO} <span class="text-[10px] text-outline font-normal">• ${r.EAN13}</span></span>
           <span class="text-[11px] text-on-surface-variant">${r.DESCRIPCION}</span>
-          <span class="text-[10px] text-outline">${r.EAN13}</span>
         </div>
       </td>
       <td class="py-space-md px-space-md text-right font-semibold">${r.UNIDADES}</td>
@@ -791,6 +1052,34 @@ function renderTable(rows) {
   document.querySelectorAll(".btn-edit").forEach(btn => {
     btn.addEventListener("click", () => openModal(parseInt(btn.dataset.row, 10)));
   });
+
+  document.querySelectorAll(".row-checkbox").forEach(cb => {
+    cb.addEventListener("change", () => {
+      const rowId = parseInt(cb.dataset.row, 10);
+      if (cb.checked) selectedRows.add(rowId); else selectedRows.delete(rowId);
+      cb.closest("tr").classList.toggle("row-selected", cb.checked);
+      updateSelectAllState(rows);
+      updateBulkBar();
+    });
+  });
+  updateSelectAllState(rows);
+  updateBulkBar();
+}
+
+function updateSelectAllState(filteredRows) {
+  const selectAll = document.getElementById("select-all-rows");
+  if (!selectAll) return;
+  const allSelected = filteredRows.length > 0 && filteredRows.every(r => selectedRows.has(r._sheetRow));
+  selectAll.checked = allSelected;
+}
+
+function updateBulkBar() {
+  const bar = document.getElementById("bulk-actions-bar");
+  const countEl = document.getElementById("bulk-count");
+  if (!bar || !countEl) return;
+  countEl.textContent = selectedRows.size;
+  bar.classList.toggle("hidden", selectedRows.size === 0);
+  bar.classList.toggle("flex", selectedRows.size > 0);
 }
 
 function renderPagination(totalPages) {
@@ -814,8 +1103,147 @@ function renderPagination(totalPages) {
   box.appendChild(mkBtn("»", currentPage + 1, currentPage >= totalPages, false));
 }
 
+/* ---------- OTIF por rango de tiempo (Hoy / 7 días / Mes / Atribución) ---------- */
+const MESES_ES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+
+function statsFor(rows) {
+  const s = { total:0, Conforme:0, Faltante:0, Sobrante:0, evaluadas:0, unidades:0, pedidosSet:new Set(), obsFaltante:0, obsSobrante:0 };
+  rows.forEach(r => {
+    const est = estatusOf(r);
+    s.total++;
+    s[est] = (s[est] || 0) + 1;
+    if (est !== "Sin Evaluar") s.evaluadas++;
+    s.unidades += (parseFloat(r.UNIDADES) || 0);
+    s.pedidosSet.add(r.ID_PEDIDO);
+    if (est === "Faltante") s.obsFaltante += (parseFloat(r.CANTIDAD_OBSERVADA) || 0);
+    if (est === "Sobrante") s.obsSobrante += (parseFloat(r.CANTIDAD_OBSERVADA) || 0);
+  });
+  s.pctConforme = s.evaluadas ? (s.Conforme / s.evaluadas * 100) : null;
+  return s;
+}
+
+function setTrend(iconId, txtId, boxId, currentPct, prevPct, suffix) {
+  const icon = document.getElementById(iconId), txt = document.getElementById(txtId), box = document.getElementById(boxId);
+  if (!icon || !txt || !box) return;
+  if (currentPct === null || prevPct === null || prevPct === undefined) {
+    icon.textContent = "trending_flat";
+    txt.textContent = "sin dato previo";
+    box.className = "inline-flex items-center gap-0.5 px-space-xs py-0.5 rounded font-label-sm text-label-sm font-bold bg-surface-container-high text-on-surface-variant";
+    return;
+  }
+  const delta = Math.round((currentPct - prevPct) * 10) / 10;
+  icon.textContent = delta > 0 ? "trending_up" : (delta < 0 ? "trending_down" : "trending_flat");
+  txt.textContent = (delta >= 0 ? "+" : "") + delta + "% " + suffix;
+  box.className = "inline-flex items-center gap-0.5 px-space-xs py-0.5 rounded font-label-sm text-label-sm font-bold " + (delta >= 0 ? "bg-surface-container text-on-tertiary-container" : "bg-surface-container-high text-error");
+}
+
+function renderOtifTimeCards(baseRows) {
+  const validRows = baseRows.filter(r => /^\d{8}$/.test(r.FECHA_CREACION));
+  const uniqueDates = Array.from(new Set(validRows.map(r => r.FECHA_CREACION))).sort();
+
+  if (!uniqueDates.length) {
+    ["otif-today-pct","otif-7d-pct","otif-month-pct"].forEach(id => document.getElementById(id).textContent = "s/d");
+    document.getElementById("otif-today-date").textContent = "Sin fecha detectada en el rango filtrado";
+    document.getElementById("otif-7d-range").textContent = "Sin fecha detectada en el rango filtrado";
+    document.getElementById("otif-month-label").textContent = "-";
+    document.getElementById("otif-atrib-title").textContent = "Sin datos";
+    return;
+  }
+
+  const latestDate = uniqueDates[uniqueDates.length - 1];
+  const prevDate = uniqueDates.length >= 2 ? uniqueDates[uniqueDates.length - 2] : null;
+
+  /* --- Card 1: Hoy (última fecha con datos en el rango filtrado) --- */
+  const todayStats = statsFor(validRows.filter(r => r.FECHA_CREACION === latestDate));
+  const prevDayStats = prevDate ? statsFor(validRows.filter(r => r.FECHA_CREACION === prevDate)) : null;
+  document.getElementById("otif-today-date").textContent = fmtDateDisplay(latestDate) + " (última fecha con datos)";
+  document.getElementById("otif-today-meta-badge").textContent = "Meta: ≥" + CONFIG.META_CONFORME.toFixed(1) + "%";
+  const todayPct = todayStats.pctConforme;
+  document.getElementById("otif-today-pct").textContent = todayPct !== null ? todayPct.toFixed(1) + "%" : "s/d";
+  document.getElementById("otif-today-bar").style.width = (todayPct || 0) + "%";
+  document.getElementById("otif-today-bar-gap").style.width = Math.max(0, 100 - (todayPct || 0)) + "%";
+  document.getElementById("otif-today-desp").textContent = todayStats.total.toLocaleString("es-PE");
+  document.getElementById("otif-today-cumpl").textContent = todayStats.Conforme.toLocaleString("es-PE");
+  setTrend("otif-today-trend-icon", "otif-today-trend-txt", "otif-today-trend", todayPct, prevDayStats ? prevDayStats.pctConforme : null, "vs fecha anterior");
+
+  /* --- Card 2: Lapso 7 días (semana móvil) --- */
+  const last7 = uniqueDates.slice(-7);
+  const prev7 = uniqueDates.slice(-14, -7);
+  const weekStats = statsFor(validRows.filter(r => last7.includes(r.FECHA_CREACION)));
+  const prevWeekStats = prev7.length ? statsFor(validRows.filter(r => prev7.includes(r.FECHA_CREACION))) : null;
+  document.getElementById("otif-7d-range").textContent = fmtDateDisplay(last7[0]) + " – " + fmtDateDisplay(last7[last7.length - 1]);
+  const weekPct = weekStats.pctConforme;
+  document.getElementById("otif-7d-pct").textContent = weekPct !== null ? weekPct.toFixed(1) + "%" : "s/d";
+  document.getElementById("otif-7d-bar").style.width = (weekPct || 0) + "%";
+  document.getElementById("otif-7d-bar-gap").style.width = Math.max(0, 100 - (weekPct || 0)) + "%";
+  document.getElementById("otif-7d-total").textContent = weekStats.pedidosSet.size.toLocaleString("es-PE");
+  document.getElementById("otif-7d-quiebre").textContent = (weekStats.Faltante + weekStats.Sobrante).toLocaleString("es-PE") + " ped.";
+  const gap7 = weekPct !== null ? Math.round((weekPct - CONFIG.META_CONFORME) * 10) / 10 : null;
+  const gapEl7 = document.getElementById("otif-7d-gap");
+  gapEl7.textContent = gap7 === null ? "-" : (gap7 >= 0 ? `+${gap7} pts sobre meta` : `${gap7} pts bajo meta`);
+  gapEl7.className = "font-bold " + (gap7 !== null && gap7 < 0 ? "text-error" : "text-on-tertiary-container");
+  setTrend("otif-7d-trend-icon", "otif-7d-trend-txt", "otif-7d-trend", weekPct, prevWeekStats ? prevWeekStats.pctConforme : null, "vs semana ant.");
+
+  /* --- Card 3: Mensual acumulado (mes de la última fecha con datos) --- */
+  const monthKey = latestDate.slice(0, 6);
+  const monthNum = parseInt(monthKey.slice(4, 6), 10), yearNum = monthKey.slice(0, 4);
+  const monthStats = statsFor(validRows.filter(r => r.FECHA_CREACION.slice(0, 6) === monthKey));
+  let pm = monthNum - 1, py = parseInt(yearNum, 10);
+  if (pm === 0) { pm = 12; py -= 1; }
+  const prevMonthKey = String(py) + String(pm).padStart(2, "0");
+  const prevMonthRows = validRows.filter(r => r.FECHA_CREACION.slice(0, 6) === prevMonthKey);
+  const prevMonthStats = prevMonthRows.length ? statsFor(prevMonthRows) : null;
+
+  document.getElementById("otif-month-label").textContent = MESES_ES[monthNum - 1] + " " + yearNum;
+  const monthPct = monthStats.pctConforme;
+  document.getElementById("otif-month-pct").textContent = monthPct !== null ? monthPct.toFixed(1) + "%" : "s/d";
+  document.getElementById("otif-month-bar").style.width = (monthPct || 0) + "%";
+  document.getElementById("otif-month-total").textContent = monthStats.pedidosSet.size.toLocaleString("es-PE") + " pedidos";
+  document.getElementById("otif-month-unidades").textContent = Math.round(monthStats.unidades).toLocaleString("es-PE");
+  const gapM = monthPct !== null ? Math.round((monthPct - CONFIG.META_CONFORME) * 10) / 10 : null;
+  const gapMEl = document.getElementById("otif-month-gap");
+  gapMEl.textContent = gapM === null ? "-" : (gapM >= 0 ? `Meta Superada (+${gapM}%)` : `Bajo meta (${gapM}%)`);
+  gapMEl.className = "font-bold " + (gapM !== null && gapM < 0 ? "text-error" : "text-on-tertiary-container");
+  setTrend("otif-month-trend-icon", "otif-month-trend-txt", "otif-month-trend", monthPct, prevMonthStats ? prevMonthStats.pctConforme : null, "vs mes ant.");
+
+  /* --- Card 4: Atribución dominante de fallas (sobre el mes en curso) --- */
+  const pctFaltante = monthStats.evaluadas ? Math.round(monthStats.Faltante / monthStats.evaluadas * 1000) / 10 : 0;
+  const pctSobrante = monthStats.evaluadas ? Math.round(monthStats.Sobrante / monthStats.evaluadas * 1000) / 10 : 0;
+  const pctQuiebre = monthStats.evaluadas ? Math.round((monthStats.Faltante + monthStats.Sobrante) / monthStats.evaluadas * 1000) / 10 : 0;
+  document.getElementById("otif-atrib-badge").textContent = pctQuiebre + "% Quiebre";
+
+  let dominant, dominantPct, otherLabel, otherPct, filterValue;
+  if (monthStats.Faltante === 0 && monthStats.Sobrante === 0) {
+    dominant = "Sin incidencias en el mes"; dominantPct = 0; otherLabel = "Sobrantes"; otherPct = 0; filterValue = "all";
+  } else if (monthStats.Faltante >= monthStats.Sobrante) {
+    dominant = "Faltantes en Pedidos"; dominantPct = pctFaltante; otherLabel = "Sobrantes"; otherPct = pctSobrante; filterValue = "Faltante";
+  } else {
+    dominant = "Sobrantes en Pedidos"; dominantPct = pctSobrante; otherLabel = "Faltantes"; otherPct = pctFaltante; filterValue = "Sobrante";
+  }
+  const sinEvaluarPct = monthStats.total ? Math.round((monthStats.total - monthStats.evaluadas) / monthStats.total * 1000) / 10 : 0;
+
+  document.getElementById("otif-atrib-title").textContent = dominant;
+  document.getElementById("otif-atrib-subtitle").textContent = dominantPct + "% de incidencias del período (" + MESES_ES[monthNum-1] + ")";
+  document.getElementById("otif-atrib-other1").textContent = otherLabel + ": " + otherPct + "%";
+  document.getElementById("otif-atrib-other2").textContent = "Sin evaluar: " + sinEvaluarPct + "%";
+  document.getElementById("otif-atrib-bar-faltante").style.width = pctFaltante + "%";
+  document.getElementById("otif-atrib-bar-sobrante").style.width = pctSobrante + "%";
+  const impacto = Math.round(monthStats.obsFaltante + monthStats.obsSobrante);
+  document.getElementById("otif-atrib-impacto").textContent = impacto.toLocaleString("es-PE") + " unidades";
+
+  const verAuditoriaBtn = document.getElementById("otif-atrib-ver-auditoria");
+  verAuditoriaBtn.onclick = () => {
+    document.getElementById("filter-estatus").value = filterValue;
+    document.getElementById("filter-fecha").value = monthKey;
+    currentPage = 1;
+    renderAll();
+    document.querySelector("#table-search")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+}
+
 function renderAll() {
   const filtered = getFiltered();
+  renderOtifTimeCards(filtered);
   renderKPIs(filtered);
   renderChart(filtered);
   renderTable(filtered);
@@ -889,6 +1317,7 @@ async function saveModal() {
       ACCIONES_TOMADAS: payload.ACCIONES_TOMADAS
     });
     statusEl.textContent = "Guardado correctamente.";
+    showToast("Cambios guardados", "Pedido #" + (currentEditRow.ID_PEDIDO || "") + " actualizado en el Sheet.");
     renderAll();
     setTimeout(closeModal, 700);
   } catch (err) {
@@ -898,18 +1327,39 @@ async function saveModal() {
 }
 
 /* ---------- Exportar CSV ---------- */
+const EXPORT_HEADERS = ["ID_PEDIDO","FECHA_CREACION","PEDIDO_BPCS","BODEGA","DOCUMENTO","CODIGO","DESCRIPCION","UNIDADES","EAN13","ESTATUS","FECHA","OBSERVACION","CANTIDAD_OBSERVADA","FECHA_RESPUESTA","RESPUESTA_DESPACHO","PERSONAL_REPORTA","FECHA_ALMACEN","RESPUESTA_ALMACEN","ACCIONES_TOMADAS"];
+
 function exportCSV() {
   const rows = getFiltered();
-  const headers = ["ID_PEDIDO","FECHA_CREACION","PEDIDO_BPCS","BODEGA","DOCUMENTO","CODIGO","DESCRIPCION","UNIDADES","EAN13","ESTATUS","FECHA","OBSERVACION","CANTIDAD_OBSERVADA","FECHA_RESPUESTA","RESPUESTA_DESPACHO","PERSONAL_REPORTA","FECHA_ALMACEN","RESPUESTA_ALMACEN","ACCIONES_TOMADAS"];
   const esc = v => `"${String(v||"").replace(/"/g,'""')}"`;
-  const lines = [headers.join(",")];
-  rows.forEach(r => lines.push(headers.map(h => esc(r[h])).join(",")));
+  const lines = [EXPORT_HEADERS.join(",")];
+  rows.forEach(r => lines.push(EXPORT_HEADERS.map(h => esc(r[h])).join(",")));
   const blob = new Blob([lines.join("\r\n")], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url; a.download = "control_pedidos_export_" + Date.now() + ".csv";
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
+  showToast("Descarga CSV lista", rows.length.toLocaleString("es-PE") + " pedidos exportados.");
+}
+
+/* ---------- Exportar Excel (XLSX) ---------- */
+function exportXLSX(rows, filenameSuffix) {
+  if (!window.XLSX) { alert("La librería de Excel no cargó. Verifica tu conexión a internet."); return; }
+  if (!rows.length) { alert("No hay pedidos para exportar con los filtros/selección actuales."); return; }
+
+  const niceHeaders = ["ID Pedido","Fecha Creación","Pedido BPCS","Bodega","Documento","Código","Descripción","Unidades","EAN13","Estatus","Fecha Evaluación","Observación","Cantidad Observada","Fecha Respuesta","Respuesta Despacho","Personal Reporta","Fecha Almacén","Respuesta Almacén","Acciones Tomadas"];
+  const data = rows.map(r => EXPORT_HEADERS.reduce((acc, h) => {
+    acc[niceHeaders[EXPORT_HEADERS.indexOf(h)]] = (h === "ESTATUS") ? estatusOf(r) : (r[h] || "");
+    return acc;
+  }, {}));
+
+  const ws = XLSX.utils.json_to_sheet(data, { header: niceHeaders });
+  ws["!cols"] = niceHeaders.map(h => ({ wch: Math.max(12, h.length + 2) }));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Control de Pedidos");
+  XLSX.writeFile(wb, `OTIF_Kamill_${filenameSuffix}_${Date.now()}.xlsx`);
+  showToast("Descarga Excel lista", rows.length.toLocaleString("es-PE") + " pedidos exportados a .xlsx.");
 }
 
 /* ---------- Eventos ---------- */
@@ -919,6 +1369,21 @@ document.getElementById("sync-btn").addEventListener("click", () => {
   loadData().finally(() => icon.classList.remove("spin"));
 });
 document.getElementById("export-btn").addEventListener("click", exportCSV);
+document.getElementById("export-xlsx-btn").addEventListener("click", () => exportXLSX(getFiltered(), "filtrados"));
+document.getElementById("select-all-rows").addEventListener("change", (e) => {
+  const filtered = getFiltered();
+  if (e.target.checked) filtered.forEach(r => selectedRows.add(r._sheetRow));
+  else filtered.forEach(r => selectedRows.delete(r._sheetRow));
+  renderTable(filtered);
+});
+document.getElementById("bulk-export-btn").addEventListener("click", () => {
+  const selected = ROWS.filter(r => selectedRows.has(r._sheetRow));
+  exportXLSX(selected, "seleccionados");
+});
+document.getElementById("bulk-clear-btn").addEventListener("click", () => {
+  selectedRows.clear();
+  renderTable(getFiltered());
+});
 document.getElementById("table-search").addEventListener("input", () => { currentPage = 1; renderAll(); });
 document.getElementById("filter-estatus").addEventListener("change", () => { currentPage = 1; renderAll(); });
 document.getElementById("filter-bodega").addEventListener("change", () => { currentPage = 1; renderAll(); });

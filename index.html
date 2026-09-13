@@ -563,57 +563,77 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
       </button>
     </div>
     <div class="p-space-lg flex flex-col gap-space-md">
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+
+      <!-- SEGMENTO 1: LO QUE REPORTA EL CLIENTE -->
+      <div class="rounded-lg border border-sky-200 bg-sky-50 p-space-md flex flex-col gap-space-md">
+        <span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-sky-700 flex items-center gap-1">
+          <span class="material-symbols-outlined text-[16px]">person</span> Reporte del Cliente
+        </span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+          <label class="flex flex-col gap-1">
+            <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Fecha</span>
+            <input id="f-fecha" type="date" class="px-space-md py-2 bg-white rounded-lg focus:outline-none border border-sky-200">
+          </label>
+          <label class="flex flex-col gap-1">
+            <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Estatus</span>
+            <select id="f-estatus" class="px-space-md py-2 bg-white rounded-lg focus:outline-none border border-sky-200">
+              <option value="">Sin Evaluar</option>
+              <option value="Conforme">Conforme</option>
+              <option value="Faltante">Faltante</option>
+              <option value="Sobrante">Sobrante</option>
+            </select>
+          </label>
+        </div>
         <label class="flex flex-col gap-1">
-          <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Estatus</span>
-          <select id="f-estatus" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none">
-            <option value="">Sin Evaluar</option>
-            <option value="Conforme">Conforme</option>
-            <option value="Faltante">Faltante</option>
-            <option value="Sobrante">Sobrante</option>
-          </select>
+          <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Observación</span>
+          <textarea id="f-observacion" rows="2" class="px-space-md py-2 bg-white rounded-lg focus:outline-none border border-sky-200"></textarea>
         </label>
-        <label class="flex flex-col gap-1">
-          <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Fecha</span>
-          <input id="f-fecha" type="date" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none">
-        </label>
-      </div>
-      <label class="flex flex-col gap-1">
-        <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Observación</span>
-        <textarea id="f-observacion" rows="2" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none"></textarea>
-      </label>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
-        <label class="flex flex-col gap-1">
+        <label class="flex flex-col gap-1 sm:w-1/2">
           <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Cantidad Observada</span>
-          <input id="f-cantidad" type="number" step="1" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none">
+          <input id="f-cantidad" type="number" step="1" class="px-space-md py-2 bg-white rounded-lg focus:outline-none border border-sky-200">
         </label>
-        <label class="flex flex-col gap-1">
+      </div>
+
+      <!-- SEGMENTO 2: LO QUE INDICA DESPACHO -->
+      <div class="rounded-lg border border-amber-200 bg-amber-50 p-space-md flex flex-col gap-space-md">
+        <span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-amber-700 flex items-center gap-1">
+          <span class="material-symbols-outlined text-[16px]">local_shipping</span> Respuesta de Despacho
+        </span>
+        <label class="flex flex-col gap-1 sm:w-1/2">
           <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Fecha de Respuesta</span>
-          <input id="f-fecharesp" type="date" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none">
-        </label>
-      </div>
-      <label class="flex flex-col gap-1">
-        <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Respuesta Despacho</span>
-        <textarea id="f-respdespacho" rows="2" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none"></textarea>
-      </label>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
-        <label class="flex flex-col gap-1">
-          <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Personal que Reporta</span>
-          <input id="f-personal" type="text" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none">
+          <input id="f-fecharesp" type="date" class="px-space-md py-2 bg-white rounded-lg focus:outline-none border border-amber-200">
         </label>
         <label class="flex flex-col gap-1">
-          <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Fecha Almacén</span>
-          <input id="f-fechaalmacen" type="date" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none">
+          <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Respuesta Despacho</span>
+          <textarea id="f-respdespacho" rows="2" class="px-space-md py-2 bg-white rounded-lg focus:outline-none border border-amber-200"></textarea>
         </label>
       </div>
-      <label class="flex flex-col gap-1">
-        <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Respuesta de Almacén</span>
-        <textarea id="f-respalmacen" rows="2" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none"></textarea>
-      </label>
-      <label class="flex flex-col gap-1">
-        <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Acciones Tomadas</span>
-        <textarea id="f-acciones" rows="2" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none"></textarea>
-      </label>
+
+      <!-- SEGMENTO 3: LO QUE INDICA ALMACÉN -->
+      <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-space-md flex flex-col gap-space-md">
+        <span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-emerald-700 flex items-center gap-1">
+          <span class="material-symbols-outlined text-[16px]">warehouse</span> Respuesta de Almacén
+        </span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+          <label class="flex flex-col gap-1">
+            <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Fecha Almacén</span>
+            <input id="f-fechaalmacen" type="date" class="px-space-md py-2 bg-white rounded-lg focus:outline-none border border-emerald-200">
+          </label>
+          <label class="flex flex-col gap-1">
+            <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Personal que Reporta</span>
+            <input id="f-personal" type="text" class="px-space-md py-2 bg-white rounded-lg focus:outline-none border border-emerald-200">
+          </label>
+        </div>
+        <label class="flex flex-col gap-1">
+          <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Respuesta de Almacén</span>
+          <textarea id="f-respalmacen" rows="2" class="px-space-md py-2 bg-white rounded-lg focus:outline-none border border-emerald-200"></textarea>
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Acciones Tomadas</span>
+          <textarea id="f-acciones" rows="2" class="px-space-md py-2 bg-white rounded-lg focus:outline-none border border-emerald-200"></textarea>
+        </label>
+      </div>
+
     </div>
     <div class="p-space-lg border-t border-outline-variant/30 flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm sticky bottom-0 bg-surface-container-lowest">
       <div class="flex flex-col gap-1">

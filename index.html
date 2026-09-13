@@ -562,6 +562,17 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
         <span class="material-symbols-outlined">close</span>
       </button>
     </div>
+    <div class="relative">
+    <div id="modal-lock-overlay" class="absolute inset-0 z-20 bg-white/95 backdrop-blur-sm flex items-center justify-center p-space-lg">
+      <div class="flex flex-col items-center gap-space-sm text-center max-w-xs">
+        <span class="material-symbols-outlined text-[40px] text-on-surface-variant">lock</span>
+        <span class="font-headline-md text-headline-md font-bold text-on-surface">Ventana bloqueada</span>
+        <p class="font-body-sm text-body-sm text-on-surface-variant">Ingresa la clave para poder ver y editar los campos de este pedido.</p>
+        <input id="modal-lock-password" type="password" placeholder="Clave de acceso..." class="w-full px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none text-center">
+        <span id="modal-lock-error" class="text-[12px] text-error font-semibold hidden">Clave incorrecta.</span>
+        <button id="modal-lock-btn" type="button" class="mt-1 w-full px-space-lg py-2 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-bold shadow-sm">Desbloquear</button>
+      </div>
+    </div>
     <div class="p-space-lg flex flex-col gap-space-md">
 
       <!-- SEGMENTO 1: LO QUE REPORTA EL CLIENTE -->
@@ -599,10 +610,16 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
         <span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-amber-700 flex items-center gap-1">
           <span class="material-symbols-outlined text-[16px]">local_shipping</span> Respuesta de Despacho
         </span>
-        <label class="flex flex-col gap-1 sm:w-1/2">
-          <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Fecha de Respuesta</span>
-          <input id="f-fecharesp" type="date" class="px-space-md py-2 bg-white rounded-lg focus:outline-none border border-amber-200">
-        </label>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+          <label class="flex flex-col gap-1">
+            <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Fecha de Respuesta</span>
+            <input id="f-fecharesp" type="date" class="px-space-md py-2 bg-white rounded-lg focus:outline-none border border-amber-200">
+          </label>
+          <label class="flex flex-col gap-1">
+            <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Personal que Reporta</span>
+            <input id="f-personal" type="text" class="px-space-md py-2 bg-white rounded-lg focus:outline-none border border-amber-200">
+          </label>
+        </div>
         <label class="flex flex-col gap-1">
           <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Respuesta Despacho</span>
           <textarea id="f-respdespacho" rows="2" class="px-space-md py-2 bg-white rounded-lg focus:outline-none border border-amber-200"></textarea>
@@ -614,16 +631,10 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
         <span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-emerald-700 flex items-center gap-1">
           <span class="material-symbols-outlined text-[16px]">warehouse</span> Respuesta de Almacén
         </span>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
-          <label class="flex flex-col gap-1">
-            <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Fecha Almacén</span>
-            <input id="f-fechaalmacen" type="date" class="px-space-md py-2 bg-white rounded-lg focus:outline-none border border-emerald-200">
-          </label>
-          <label class="flex flex-col gap-1">
-            <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Personal que Reporta</span>
-            <input id="f-personal" type="text" class="px-space-md py-2 bg-white rounded-lg focus:outline-none border border-emerald-200">
-          </label>
-        </div>
+        <label class="flex flex-col gap-1 sm:w-1/2">
+          <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Fecha Almacén</span>
+          <input id="f-fechaalmacen" type="date" class="px-space-md py-2 bg-white rounded-lg focus:outline-none border border-emerald-200">
+        </label>
         <label class="flex flex-col gap-1">
           <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Respuesta de Almacén</span>
           <textarea id="f-respalmacen" rows="2" class="px-space-md py-2 bg-white rounded-lg focus:outline-none border border-emerald-200"></textarea>
@@ -634,6 +645,7 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
         </label>
       </div>
 
+    </div>
     </div>
     <div class="p-space-lg border-t border-outline-variant/30 flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm sticky bottom-0 bg-surface-container-lowest">
       <div class="flex flex-col gap-1">
@@ -1523,6 +1535,30 @@ function renderAll() {
 }
 
 /* ---------- Modal de edición ---------- */
+const MODAL_LOCK_PASSWORD = "odbg";
+let modalUnlocked = false; // una vez desbloqueado, se mantiene así durante la sesión
+
+function showModalLock() {
+  document.getElementById("modal-lock-overlay").classList.remove("hidden");
+  document.getElementById("modal-lock-password").value = "";
+  document.getElementById("modal-lock-error").classList.add("hidden");
+  setTimeout(() => document.getElementById("modal-lock-password").focus(), 50);
+}
+function hideModalLock() {
+  document.getElementById("modal-lock-overlay").classList.add("hidden");
+}
+function attemptUnlock() {
+  const val = document.getElementById("modal-lock-password").value;
+  if (val === MODAL_LOCK_PASSWORD) {
+    modalUnlocked = true;
+    hideModalLock();
+  } else {
+    document.getElementById("modal-lock-error").classList.remove("hidden");
+  }
+}
+document.getElementById("modal-lock-btn").addEventListener("click", attemptUnlock);
+document.getElementById("modal-lock-password").addEventListener("keydown", (e) => { if (e.key === "Enter") attemptUnlock(); });
+
 function openModal(sheetRow) {
   const r = ROWS.find(x => x._sheetRow === sheetRow);
   if (!r) return;
@@ -1544,6 +1580,7 @@ function openModal(sheetRow) {
     "Modo solo lectura: configura APPS_SCRIPT_URL para poder guardar.";
   document.getElementById("modal-save").disabled = !CONFIG.APPS_SCRIPT_URL;
   document.getElementById("modal-save").classList.toggle("opacity-50", !CONFIG.APPS_SCRIPT_URL);
+  if (modalUnlocked) hideModalLock(); else showModalLock();
   document.getElementById("edit-modal").classList.remove("hidden");
   document.getElementById("edit-modal").classList.add("flex");
 }

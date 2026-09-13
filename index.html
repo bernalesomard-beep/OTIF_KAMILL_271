@@ -353,7 +353,7 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
           <span class="material-symbols-outlined text-secondary text-[20px]">bar_chart</span>
           <h2 class="font-headline-md text-headline-md font-bold text-on-surface">Evolución de Pedidos y Unidades vs. % Conforme</h2>
         </div>
-        <p class="font-body-sm text-body-sm text-on-surface-variant">Por cada fecha: la barra ancha y clara (izquierda) = Unidades; la angosta y azul oscuro (derecha) = Pedidos únicos. El número queda impreso encima de cada una.</p>
+        <p class="font-body-sm text-body-sm text-on-surface-variant">Barra ancha y clara (izq.) = Unidades; angosta y azul oscuro (der.) = Pedidos únicos, con el valor impreso en la base. Muestra los últimos 7 días, o el mes completo si filtras por Mes arriba.</p>
       </div>
       <div class="flex flex-wrap items-center gap-space-md">
         <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-surface-container-highest"></span><span class="font-label-sm text-label-sm text-on-surface-variant">Unidades (esc.)</span></div>
@@ -967,9 +967,22 @@ function renderKPIs(rows) {
   const pctOrdFaltante = ordEvaluados ? Math.round((ordFaltante / ordEvaluados) * 1000) / 10 : 0;
   const pctOrdSobrante = ordEvaluados ? Math.round((ordSobrante / ordEvaluados) * 1000) / 10 : 0;
 
-  const unidConforme = conforme.reduce((s,r)=>s+(parseFloat(r.UNIDADES)||0),0);
-  const unidFaltante = faltante.reduce((s,r)=>s+(parseFloat(r.UNIDADES)||0),0);
-  const unidSobrante = sobrante.reduce((s,r)=>s+(parseFloat(r.UNIDADES)||0),0);
+  // Unidades: en líneas Faltante/Sobrante, solo la CANTIDAD_OBSERVADA (col. N) es la discrepancia real;
+  // el resto de las unidades de esa línea sí se entregaron bien y cuentan como conformes.
+  let unidConforme = conforme.reduce((s,r)=>s+(parseFloat(r.UNIDADES)||0),0);
+  let unidFaltante = 0, unidSobrante = 0;
+  faltante.forEach(r => {
+    const total = parseFloat(r.UNIDADES) || 0;
+    const obs = Math.min(parseFloat(r.CANTIDAD_OBSERVADA) || 0, total);
+    unidFaltante += obs;
+    unidConforme += (total - obs);
+  });
+  sobrante.forEach(r => {
+    const total = parseFloat(r.UNIDADES) || 0;
+    const obs = Math.min(parseFloat(r.CANTIDAD_OBSERVADA) || 0, total);
+    unidSobrante += obs;
+    unidConforme += (total - obs);
+  });
   const unidEvaluadas = unidConforme + unidFaltante + unidSobrante;
   const pctUnidConforme = unidEvaluadas ? Math.round((unidConforme / unidEvaluadas) * 1000) / 10 : 0;
   const pctUnidFaltante = unidEvaluadas ? Math.round((unidFaltante / unidEvaluadas) * 1000) / 10 : 0;
@@ -1021,7 +1034,8 @@ function computeDailyStats(rows) {
 function renderChart(rows) {
   const svg = document.getElementById("main-chart");
   const { dates, perDate } = computeDailyStats(rows);
-  const shown = dates.slice(-7);
+  const mesFilterActive = document.getElementById("filter-mes") && document.getElementById("filter-mes").value !== "all";
+  const shown = mesFilterActive ? dates : dates.slice(-7);
   svg.innerHTML = "";
 
   if (!shown.length) {
@@ -1078,10 +1092,10 @@ function renderChart(rows) {
     svgContent += `<g class="chart-day-group transition-opacity" data-day="${dispLabel}" data-pct="${pctForTip}%" data-orders="${info.pedidosSet.size}" data-units="${Math.round(info.unidades).toLocaleString('es-PE')}" data-eval="${info.evaluadas}/${info.total}" data-desvios="${desvios}">
       <rect x="${cx-unidW-2}" y="${bottom-unidBarH}" width="${unidW}" height="${unidBarH}" rx="2" fill="url(#barGradUnidades)"></rect>
       <rect x="${cx+2}" y="${bottom-pedBarH}" width="${pedW}" height="${pedBarH}" rx="2" fill="url(#barGradPedidos)"></rect>
-      <text x="${cx-unidW-2+unidW/2}" y="${bottom-unidBarH-4}" font-size="9" font-weight="700" text-anchor="middle" fill="#7ba3d0">${Math.round(info.unidades).toLocaleString('es-PE')}</text>
-      <text x="${cx+2+pedW/2}" y="${bottom-pedBarH-4}" font-size="9" font-weight="700" text-anchor="middle" fill="#006398">${info.pedidosSet.size}</text>
+      <text x="${cx-unidW-2+unidW/2}" y="${bottom-6}" font-size="9" font-weight="700" text-anchor="middle" fill="#0b3a57" stroke="#ffffff" stroke-width="3" paint-order="stroke">${Math.round(info.unidades).toLocaleString('es-PE')}</text>
+      <text x="${cx+2+pedW/2}" y="${bottom-6}" font-size="9" font-weight="700" text-anchor="middle" fill="#0b3a57" stroke="#ffffff" stroke-width="3" paint-order="stroke">${info.pedidosSet.size}</text>
       <rect x="${cx-unidW-6}" y="${top}" width="${unidW+pedW+8}" height="${bottom-top}" fill="transparent"></rect>
-      <text x="${cx}" y="${bottom+18}" font-size="11" font-weight="600" text-anchor="middle" fill="#45464d">${dispLabel}</text>
+      <text x="${cx}" y="${bottom+18}" font-size="${shown.length > 12 ? 9 : 11}" font-weight="600" text-anchor="${shown.length > 12 ? 'end' : 'middle'}" fill="#45464d" transform="${shown.length > 12 ? `rotate(-45 ${cx} ${bottom+18})` : ''}">${dispLabel}</text>
     </g>`;
 
     const pct = info.evaluadas ? (info.Conforme/info.evaluadas*100) : null;

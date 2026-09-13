@@ -663,6 +663,72 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
   </div>
 </div>
 
+<!-- ============================ MODAL: DECLARAR LÍNEA NO SOLICITADA (SOBRANTE) ============================ -->
+<div id="add-line-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/40 p-4">
+  <div class="bg-surface-container-lowest rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+    <div class="p-space-lg border-b border-outline-variant/30 flex items-center justify-between sticky top-0 bg-surface-container-lowest z-10">
+      <div class="flex flex-col">
+        <span class="font-headline-md text-headline-md font-bold text-on-surface">Declarar Línea No Solicitada</span>
+        <span class="font-body-sm text-body-sm text-on-surface-variant" id="addline-subtitle">BPCS -- • Documento -- • Destinatario --</span>
+      </div>
+      <button id="addline-close-btn" class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" type="button">
+        <span class="material-symbols-outlined text-[22px]">close</span>
+      </button>
+    </div>
+    <div class="p-space-lg flex flex-col gap-space-md">
+      <div class="rounded-lg border border-amber-200 bg-amber-50 p-space-md flex items-start gap-space-sm">
+        <span class="material-symbols-outlined text-amber-600 text-[20px] shrink-0">warning</span>
+        <p class="text-body-sm text-amber-800">Este código llegó pero <strong>no estaba en el detalle original del pedido</strong>. Se creará como línea nueva con <strong>Unidades Solicitadas = 0</strong> y <strong>Estatus = Sobrante</strong>.</p>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+        <label class="flex flex-col gap-1">
+          <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Código *</span>
+          <input id="al-codigo" type="text" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none">
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">EAN 13</span>
+          <input id="al-ean" type="text" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none">
+        </label>
+      </div>
+      <label class="flex flex-col gap-1">
+        <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Descripción *</span>
+        <input id="al-descripcion" type="text" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none">
+      </label>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+        <label class="flex flex-col gap-1">
+          <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Unidades Solicitadas</span>
+          <input type="text" value="0 (no estaba en el pedido)" disabled class="px-space-md py-2 bg-surface-container-high rounded-lg text-on-surface-variant">
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Cantidad Recibida de Más *</span>
+          <input id="al-cantidad" type="number" step="1" min="1" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none">
+        </label>
+      </div>
+      <label class="flex flex-col gap-1">
+        <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Observación</span>
+        <textarea id="al-observacion" rows="2" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none"></textarea>
+      </label>
+      <label class="flex flex-col gap-1">
+        <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase">Personal que Reporta</span>
+        <input id="al-personal" type="text" class="px-space-md py-2 bg-surface-container-low rounded-lg focus:outline-none">
+      </label>
+    </div>
+    <div class="p-space-lg border-t border-outline-variant/30 flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm sticky bottom-0 bg-surface-container-lowest">
+      <div class="flex flex-col gap-1">
+        <span id="addline-status" class="font-label-sm text-label-sm text-on-surface-variant"></span>
+        <div class="flex items-center gap-space-xs">
+          <span class="material-symbols-outlined text-[16px] text-on-surface-variant">lock</span>
+          <input id="al-password" type="password" placeholder="Clave para guardar..." class="px-space-sm py-1.5 bg-surface-container-low rounded-lg text-body-sm focus:outline-none w-56">
+        </div>
+      </div>
+      <div class="flex items-center gap-space-sm">
+        <button id="addline-cancel" class="px-space-lg py-2 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md font-semibold" type="button">Cancelar</button>
+        <button id="addline-save" class="px-space-lg py-2 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-bold shadow-sm" type="button">Declarar Línea</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ============================ TOAST FLOTANTE ============================ -->
 <div id="live-toast" class="fixed bottom-6 right-6 z-[110] transform translate-y-16 opacity-0 transition-all duration-300 pointer-events-none">
   <div class="flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary rounded-xl shadow-xl border border-secondary-container/20">
@@ -1313,9 +1379,19 @@ function renderTable(rows) {
             </tbody>
           </table>
         </div>
+        <div class="p-space-sm bg-surface-container-lowest flex justify-end">
+          <button class="btn-add-line inline-flex items-center gap-1 px-space-md py-1.5 rounded-lg bg-surface-container-high hover:bg-secondary-container text-on-surface font-label-sm text-label-sm font-bold transition-colors" data-bpcs="${o.bpcs}" type="button">
+            <span class="material-symbols-outlined text-[16px]">add_box</span>
+            Declarar línea no solicitada (Sobrante)
+          </button>
+        </div>
       </td>`;
       tbody.appendChild(trDetail);
     }
+  });
+
+  document.querySelectorAll(".btn-add-line").forEach(btn => {
+    btn.addEventListener("click", (e) => { e.stopPropagation(); openAddLineModal(btn.dataset.bpcs); });
   });
 
   document.getElementById("table-summary").textContent =
@@ -1648,7 +1724,103 @@ async function saveModal() {
   }
 }
 
-/* ---------- Exportar CSV ---------- */
+/* ---------- Modal: Declarar línea no solicitada (Sobrante) ---------- */
+let currentAddLineBpcs = null;
+
+function openAddLineModal(bpcs) {
+  currentAddLineBpcs = bpcs;
+  const ref = ROWS.find(r => r.PEDIDO_BPCS === bpcs) || {};
+  document.getElementById("addline-subtitle").textContent =
+    `BPCS ${bpcs} • Documento ${ref.DOCUMENTO || "-"} • Destinatario ${ref.DESTINATARIO || "-"}`;
+  document.getElementById("al-codigo").value = "";
+  document.getElementById("al-ean").value = "";
+  document.getElementById("al-descripcion").value = "";
+  document.getElementById("al-cantidad").value = "";
+  document.getElementById("al-observacion").value = "";
+  document.getElementById("al-personal").value = "";
+  document.getElementById("al-password").value = "";
+  document.getElementById("addline-status").textContent = CONFIG.APPS_SCRIPT_URL ? "" :
+    "Modo solo lectura: configura APPS_SCRIPT_URL para poder guardar.";
+  document.getElementById("addline-save").disabled = !CONFIG.APPS_SCRIPT_URL;
+  document.getElementById("addline-save").classList.toggle("opacity-50", !CONFIG.APPS_SCRIPT_URL);
+  document.getElementById("add-line-modal").classList.remove("hidden");
+  document.getElementById("add-line-modal").classList.add("flex");
+}
+
+function closeAddLineModal() {
+  document.getElementById("add-line-modal").classList.add("hidden");
+  document.getElementById("add-line-modal").classList.remove("flex");
+  currentAddLineBpcs = null;
+}
+
+async function saveAddLine() {
+  if (!currentAddLineBpcs || !CONFIG.APPS_SCRIPT_URL) return;
+  const codigo = document.getElementById("al-codigo").value.trim();
+  const descripcion = document.getElementById("al-descripcion").value.trim();
+  const cantidad = document.getElementById("al-cantidad").value;
+  const password = document.getElementById("al-password").value;
+  const statusEl = document.getElementById("addline-status");
+
+  if (!codigo || !descripcion || !cantidad) {
+    statusEl.className = "font-label-sm text-label-sm text-error font-semibold";
+    statusEl.textContent = "Completa Código, Descripción y Cantidad Recibida de Más.";
+    return;
+  }
+  if (!password) {
+    statusEl.className = "font-label-sm text-label-sm text-error font-semibold";
+    statusEl.textContent = "Ingresa la clave de edición para guardar.";
+    return;
+  }
+
+  const ref = ROWS.find(r => r.PEDIDO_BPCS === currentAddLineBpcs) || {};
+  const todayIso = new Date().toISOString().slice(0, 10);
+
+  const payload = {
+    action: "add",
+    password: password,
+    PEDIDO_BPCS: currentAddLineBpcs,
+    FECHA_CREACION: ref.FECHA_CREACION || "",
+    BODEGA: ref.BODEGA || "",
+    DOCUMENTO: ref.DOCUMENTO || "",
+    DESTINATARIO: ref.DESTINATARIO || "",
+    CODIGO: codigo,
+    EAN13: document.getElementById("al-ean").value.trim(),
+    DESCRIPCION: descripcion,
+    UNIDADES: 0,
+    ESTATUS: "Sobrante",
+    FECHA: todayIso,
+    OBSERVACION: document.getElementById("al-observacion").value.trim(),
+    CANTIDAD_OBSERVADA: cantidad,
+    PERSONAL_REPORTA: document.getElementById("al-personal").value.trim()
+  };
+
+  statusEl.className = "font-label-sm text-label-sm text-on-surface-variant";
+  statusEl.textContent = "Guardando...";
+  try {
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || "Error desconocido");
+
+    statusEl.className = "font-label-sm text-label-sm text-on-tertiary-container font-semibold";
+    statusEl.textContent = "Línea creada correctamente.";
+    showToast("Línea declarada", `Código ${codigo} agregado como Sobrante al pedido BPCS ${currentAddLineBpcs}.`);
+    if (!expandedOrders.has(currentAddLineBpcs)) expandedOrders.add(currentAddLineBpcs);
+    await loadData(); // recarga desde el Sheet para traer la fila real con su _sheetRow
+    setTimeout(closeAddLineModal, 700);
+  } catch (err) {
+    console.error(err);
+    statusEl.className = "font-label-sm text-label-sm text-error font-semibold";
+    statusEl.textContent = "Error al guardar: " + err.message;
+  }
+}
+
+document.getElementById("addline-close-btn").addEventListener("click", closeAddLineModal);
+document.getElementById("addline-cancel").addEventListener("click", closeAddLineModal);
+document.getElementById("addline-save").addEventListener("click", saveAddLine);
 const EXPORT_HEADERS = ["ID_PEDIDO","FECHA_CREACION","PEDIDO_BPCS","BODEGA","DOCUMENTO","DESTINATARIO","CODIGO","DESCRIPCION","UNIDADES","EAN13","ESTATUS","FECHA","OBSERVACION","CANTIDAD_OBSERVADA","FECHA_RESPUESTA","RESPUESTA_DESPACHO","PERSONAL_REPORTA","FECHA_ALMACEN","RESPUESTA_ALMACEN","ACCIONES_TOMADAS"];
 
 function exportCSV() {

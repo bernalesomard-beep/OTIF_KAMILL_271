@@ -19,6 +19,7 @@ tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-fixed":"#0
 .badge-conforme{background:#e5eeff;color:#069669;}
 .badge-faltante{background:#ffdad6;color:#93000a;}
 .badge-sobrante{background:#dce9ff;color:#006398;}
+.badge-malestado{background:#fef3c7;color:#92400e;}
 .badge-sinevaluar{background:#eff4ff;color:#45464d;}
 .spin{animation:spin 1s linear infinite;}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
@@ -44,11 +45,11 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
         </div>
       </div>
       <div class="h-6 w-px bg-outline-variant/50 hidden lg:block"></div>
-      <nav class="hidden xl:flex items-center gap-space-xs">
-        <a class="px-space-md py-space-xs rounded-lg transition-colors bg-primary-container text-on-primary font-bold" href="#">Tablero OTIF</a>
-        <a class="font-label-md text-label-md px-space-md py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" href="#">Monitoreo de Pedidos</a>
-        <a class="font-label-md text-label-md px-space-md py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" href="#">Auditoría y Desvíos</a>
-        <a class="font-label-md text-label-md px-space-md py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" href="#">Reportes Ejecutivos</a>
+      <nav class="hidden xl:flex items-center gap-space-xs" id="main-nav">
+        <a id="nav-tablero" class="nav-link px-space-md py-space-xs rounded-lg transition-colors bg-primary-container text-on-primary font-bold" href="#" data-view="view-tablero">Tablero OTIF</a>
+        <a id="nav-incidencias" class="nav-link font-label-md text-label-md px-space-md py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" href="#" data-view="view-incidencias">Monitoreo de Incidencias</a>
+        <a class="nav-link font-label-md text-label-md px-space-md py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" href="#" data-view="">Auditoría y Desvíos</a>
+        <a class="nav-link font-label-md text-label-md px-space-md py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" href="#" data-view="">Reportes Ejecutivos</a>
       </nav>
     </div>
     <div class="flex items-center gap-space-md shrink-0">
@@ -70,7 +71,7 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
 </header>
 
 <main class="w-full pt-16 bg-surface min-h-[calc(100vh-4rem)]">
-<div class="flex flex-col w-full">
+<div id="view-tablero" class="flex flex-col w-full">
 
 <!-- ==================== QUICK ACTION FILTERS BAR ==================== -->
 <section class="w-full px-margin py-space-md bg-surface-container-lowest shadow-sm">
@@ -99,6 +100,7 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
           <option value="Conforme">Conforme</option>
           <option value="Faltante">Faltante</option>
           <option value="Sobrante">Sobrante</option>
+          <option value="Mal Estado">Mal Estado</option>
           <option value="Sin Evaluar">Sin Evaluar</option>
         </select>
       </div>
@@ -237,6 +239,7 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
       <div class="w-full h-2 rounded-full overflow-hidden flex bg-surface-container-low" id="otif-atrib-bar-wrap">
         <div class="h-full bg-error" id="otif-atrib-bar-faltante" style="width:0%"></div>
         <div class="h-full bg-secondary" id="otif-atrib-bar-sobrante" style="width:0%"></div>
+        <div class="h-full bg-amber-500" id="otif-atrib-bar-malestado" style="width:0%"></div>
       </div>
       <div class="flex justify-between items-center text-[11px] font-label-sm text-on-surface-variant mt-1">
         <span>Impacto directo: <strong class="text-on-surface" id="otif-atrib-impacto">0 unidades</strong></span>
@@ -441,6 +444,21 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
             </div>
           </div>
         </div>
+        <div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-space-xs">
+          <div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-amber-600 text-[18px]">report_problem</span><span class="font-label-md text-label-md font-bold text-on-surface">Mal Estado</span></div>
+          <div class="grid grid-cols-2 gap-space-sm">
+            <div class="flex flex-col gap-0.5">
+              <div class="flex justify-between items-baseline"><span class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wide">Pedidos</span><span class="text-[13px] font-bold text-amber-600" id="desg-malestado-pedidos-pct">0%</span></div>
+              <div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden"><div class="h-full bg-amber-500 rounded-full" id="desg-malestado-pedidos-bar" style="width:0%"></div></div>
+              <span class="text-[10px] text-on-surface-variant" id="desg-malestado-pedidos-count">0 ped.</span>
+            </div>
+            <div class="flex flex-col gap-0.5">
+              <div class="flex justify-between items-baseline"><span class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wide">Unidades</span><span class="text-[13px] font-bold text-amber-600" id="desg-malestado-unidades-pct">0%</span></div>
+              <div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden"><div class="h-full bg-amber-500 rounded-full" id="desg-malestado-unidades-bar" style="width:0%"></div></div>
+              <span class="text-[10px] text-on-surface-variant" id="desg-malestado-unidades-count">0 un.</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="mt-space-md p-space-sm rounded bg-surface-container flex items-center justify-between">
@@ -534,6 +552,92 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
 
 </div>
 </div>
+
+<!-- ==================== VISTA: MONITOREO DE INCIDENCIAS ==================== -->
+<div id="view-incidencias" class="hidden w-full flex-col">
+  <section class="w-full px-margin py-space-md bg-surface-container-lowest shadow-sm">
+    <div class="flex flex-col gap-space-xs">
+      <span class="font-headline-md text-headline-md font-bold text-on-surface">Monitoreo de Incidencias</span>
+      <span class="font-body-sm text-body-sm text-on-surface-variant">Solo líneas reportadas con Faltante, Sobrante o Mal Estado. Da seguimiento al estado de la incidencia hasta que quede resuelta.</span>
+    </div>
+  </section>
+
+  <div class="w-full px-margin py-space-lg flex flex-col gap-space-lg">
+    <!-- Resumen de incidencias por estado de seguimiento -->
+    <section class="grid grid-cols-1 sm:grid-cols-3 gap-space-lg">
+      <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-1.5 h-full bg-error"></div>
+        <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Pendientes</span>
+        <div class="font-metric-headline text-metric-headline font-bold text-on-surface" id="inc-count-pendiente">0</div>
+      </div>
+      <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-1.5 h-full bg-amber-500"></div>
+        <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">En Curso</span>
+        <div class="font-metric-headline text-metric-headline font-bold text-on-surface" id="inc-count-encurso">0</div>
+      </div>
+      <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-1.5 h-full bg-on-tertiary-container"></div>
+        <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Cerradas</span>
+        <div class="font-metric-headline text-metric-headline font-bold text-on-surface" id="inc-count-cerrado">0</div>
+      </div>
+    </section>
+
+    <!-- Filtros propios de esta vista -->
+    <section class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col">
+      <div class="p-space-lg bg-surface-container-low flex flex-col gap-space-md">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-sm">
+          <div class="relative flex items-center">
+            <span class="material-symbols-outlined absolute left-3 text-[18px] text-on-surface-variant">search</span>
+            <input id="inc-search" class="w-full pl-9 pr-3 py-2 bg-surface-container-lowest rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none shadow-sm" placeholder="Buscar por Pedido, Documento, Código..." type="text">
+          </div>
+          <div class="relative flex items-center">
+            <span class="material-symbols-outlined absolute left-3 text-[18px] text-on-surface-variant">report</span>
+            <select id="inc-filter-tipo" class="w-full pl-9 pr-8 py-2 bg-surface-container-lowest rounded-lg font-label-md text-label-md text-on-surface focus:outline-none shadow-sm cursor-pointer appearance-none">
+              <option value="all">Tipo: Todos (Faltante/Sobrante/Mal Estado)</option>
+              <option value="Faltante">Faltante</option>
+              <option value="Sobrante">Sobrante</option>
+              <option value="Mal Estado">Mal Estado</option>
+            </select>
+          </div>
+          <div class="relative flex items-center">
+            <span class="material-symbols-outlined absolute left-3 text-[18px] text-on-surface-variant">pending_actions</span>
+            <select id="inc-filter-estado" class="w-full pl-9 pr-8 py-2 bg-surface-container-lowest rounded-lg font-label-md text-label-md text-on-surface focus:outline-none shadow-sm cursor-pointer appearance-none">
+              <option value="all">Estado Incidencia: Todos</option>
+              <option value="Pendiente">Pendiente</option>
+              <option value="En Curso">En Curso</option>
+              <option value="Cerrado">Cerrado</option>
+              <option value="(vacio)">Sin estado asignado</option>
+            </select>
+          </div>
+          <button id="inc-clear-filters" class="inline-flex items-center justify-center gap-1 px-space-md py-2 rounded-lg bg-surface-container-lowest text-on-surface font-label-md text-label-md font-semibold shadow-sm hover:bg-surface-container-high transition-colors" type="button">
+            <span class="material-symbols-outlined text-[16px]">filter_alt_off</span> Restablecer
+          </button>
+        </div>
+      </div>
+      <div class="w-full overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-surface-container-high/60 text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+              <th class="py-space-md px-space-md font-bold">Fecha / BPCS / Documento</th>
+              <th class="py-space-md px-space-md font-bold">Destinatario</th>
+              <th class="py-space-md px-space-md font-bold">Código / Descripción</th>
+              <th class="py-space-md px-space-md font-bold text-center">Estatus</th>
+              <th class="py-space-md px-space-md font-bold">Observación / Personal</th>
+              <th class="py-space-md px-space-md font-bold">Estado de la Incidencia</th>
+              <th class="py-space-md px-space-md font-bold">Fecha de Estado</th>
+              <th class="py-space-md px-space-md font-bold text-right">Acción</th>
+            </tr>
+          </thead>
+          <tbody id="inc-tbody" class="divide-y divide-surface-container-low font-body-sm text-body-sm text-on-surface"></tbody>
+        </table>
+      </div>
+      <div class="p-space-md bg-surface-container-lowest border-t border-surface-container-high">
+        <span class="font-label-sm text-label-sm text-on-surface-variant" id="inc-summary">Mostrando 0 incidencias</span>
+      </div>
+    </section>
+  </div>
+</div>
+
 </main>
 
 <!-- ============================= FOOTER ============================= -->
@@ -592,6 +696,7 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
               <option value="Conforme">Conforme</option>
               <option value="Faltante">Faltante</option>
               <option value="Sobrante">Sobrante</option>
+              <option value="Mal Estado">Mal Estado</option>
             </select>
           </label>
         </div>
@@ -775,7 +880,9 @@ const HEADER_MAP = {
   "PERSONAL QUE REPORTA": "PERSONAL_REPORTA",
   "FECHA ALMACEN": "FECHA_ALMACEN",
   "RESPUESTA DE ALMACEN": "RESPUESTA_ALMACEN",
-  "ACCIONES TOMADAS": "ACCIONES_TOMADAS"
+  "ACCIONES TOMADAS": "ACCIONES_TOMADAS",
+  "ESTADO INCIDENCIA": "ESTADO_INCIDENCIA",
+  "FECHA DE ESTADO": "FECHA_ESTADO"
 };
 
 let ROWS = [];
@@ -852,6 +959,7 @@ function badgeClass(estatus) {
   if (estatus === "Conforme") return "badge-conforme";
   if (estatus === "Faltante") return "badge-faltante";
   if (estatus === "Sobrante") return "badge-sobrante";
+  if (estatus === "Mal Estado") return "badge-malestado";
   return "badge-sinevaluar";
 }
 
@@ -859,6 +967,7 @@ function actionIcon(estatus) {
   if (estatus === "Conforme") return "visibility";
   if (estatus === "Faltante") return "gavel";
   if (estatus === "Sobrante") return "inventory_2";
+  if (estatus === "Mal Estado") return "report_problem";
   return "edit";
 }
 
@@ -866,6 +975,7 @@ function actionIconColor(estatus) {
   if (estatus === "Conforme") return "text-secondary";
   if (estatus === "Faltante") return "text-error";
   if (estatus === "Sobrante") return "text-on-tertiary-container";
+  if (estatus === "Mal Estado") return "text-amber-600";
   return "text-on-surface-variant";
 }
 
@@ -985,11 +1095,13 @@ function renderKPIs(rows) {
   const conforme = rows.filter(r => estatusOf(r) === "Conforme");
   const faltante = rows.filter(r => estatusOf(r) === "Faltante");
   const sobrante = rows.filter(r => estatusOf(r) === "Sobrante");
-  const evaluadas = conforme.length + faltante.length + sobrante.length;
+  const malestado = rows.filter(r => estatusOf(r) === "Mal Estado");
+  const evaluadas = conforme.length + faltante.length + sobrante.length + malestado.length;
   const sinEvaluar = total - evaluadas;
   const pctConforme = evaluadas ? Math.round((conforme.length / evaluadas) * 1000) / 10 : 0;
   const pctFaltante = evaluadas ? Math.round((faltante.length / evaluadas) * 1000) / 10 : 0;
   const pctSobrante = evaluadas ? Math.round((sobrante.length / evaluadas) * 1000) / 10 : 0;
+  const pctMalEstado = evaluadas ? Math.round((malestado.length / evaluadas) * 1000) / 10 : 0;
 
   document.getElementById("kpi-total").textContent = total.toLocaleString("es-PE");
   document.getElementById("kpi-unidades-badge").textContent = unidades.toLocaleString("es-PE") + " un.";
@@ -1046,29 +1158,32 @@ function renderKPIs(rows) {
   const ordersMap = {};
   rows.forEach(r => {
     const bpcs = r.PEDIDO_BPCS || "(sin bpcs)";
-    if (!ordersMap[bpcs]) ordersMap[bpcs] = { hasFaltante:false, hasSobrante:false, hasConforme:false, hasEvaluada:false };
+    if (!ordersMap[bpcs]) ordersMap[bpcs] = { hasFaltante:false, hasSobrante:false, hasMalEstado:false, hasConforme:false, hasEvaluada:false };
     const est = estatusOf(r);
     if (est === "Faltante") ordersMap[bpcs].hasFaltante = true;
     if (est === "Sobrante") ordersMap[bpcs].hasSobrante = true;
+    if (est === "Mal Estado") ordersMap[bpcs].hasMalEstado = true;
     if (est === "Conforme") ordersMap[bpcs].hasConforme = true;
     if (est !== "Sin Evaluar") ordersMap[bpcs].hasEvaluada = true;
   });
-  let ordConforme = 0, ordFaltante = 0, ordSobrante = 0, ordEvaluados = 0;
+  let ordConforme = 0, ordFaltante = 0, ordSobrante = 0, ordMalEstado = 0, ordEvaluados = 0;
   Object.values(ordersMap).forEach(o => {
     if (!o.hasEvaluada) return; // pedido totalmente sin evaluar: se excluye del % (igual que a nivel línea)
     ordEvaluados++;
     if (o.hasFaltante) ordFaltante++;
+    else if (o.hasMalEstado) ordMalEstado++;
     else if (o.hasSobrante) ordSobrante++;
     else ordConforme++;
   });
   const pctOrdConforme = ordEvaluados ? Math.round((ordConforme / ordEvaluados) * 1000) / 10 : 0;
   const pctOrdFaltante = ordEvaluados ? Math.round((ordFaltante / ordEvaluados) * 1000) / 10 : 0;
   const pctOrdSobrante = ordEvaluados ? Math.round((ordSobrante / ordEvaluados) * 1000) / 10 : 0;
+  const pctOrdMalEstado = ordEvaluados ? Math.round((ordMalEstado / ordEvaluados) * 1000) / 10 : 0;
 
-  // Unidades: en líneas Faltante/Sobrante, solo la CANTIDAD_OBSERVADA (col. N) es la discrepancia real;
+  // Unidades: en líneas Faltante/Sobrante/Mal Estado, solo la CANTIDAD_OBSERVADA (col. N) es la discrepancia real;
   // el resto de las unidades de esa línea sí se entregaron bien y cuentan como conformes.
   let unidConforme = conforme.reduce((s,r)=>s+(parseFloat(r.UNIDADES)||0),0);
-  let unidFaltante = 0, unidSobrante = 0;
+  let unidFaltante = 0, unidSobrante = 0, unidMalEstado = 0;
   faltante.forEach(r => {
     const total = parseFloat(r.UNIDADES) || 0;
     const obs = Math.min(parseFloat(r.CANTIDAD_OBSERVADA) || 0, total);
@@ -1081,10 +1196,17 @@ function renderKPIs(rows) {
     unidSobrante += obs;
     unidConforme += (total - obs);
   });
-  const unidEvaluadas = unidConforme + unidFaltante + unidSobrante;
+  malestado.forEach(r => {
+    const total = parseFloat(r.UNIDADES) || 0;
+    const obs = Math.min(parseFloat(r.CANTIDAD_OBSERVADA) || 0, total) || total;
+    unidMalEstado += obs;
+    unidConforme += Math.max(0, total - obs);
+  });
+  const unidEvaluadas = unidConforme + unidFaltante + unidSobrante + unidMalEstado;
   const pctUnidConforme = unidEvaluadas ? Math.round((unidConforme / unidEvaluadas) * 1000) / 10 : 0;
   const pctUnidFaltante = unidEvaluadas ? Math.round((unidFaltante / unidEvaluadas) * 1000) / 10 : 0;
   const pctUnidSobrante = unidEvaluadas ? Math.round((unidSobrante / unidEvaluadas) * 1000) / 10 : 0;
+  const pctUnidMalEstado = unidEvaluadas ? Math.round((unidMalEstado / unidEvaluadas) * 1000) / 10 : 0;
 
   document.getElementById("desg-conforme-pedidos-pct").textContent = pctOrdConforme + "%";
   document.getElementById("desg-conforme-pedidos-bar").style.width = pctOrdConforme + "%";
@@ -1107,6 +1229,13 @@ function renderKPIs(rows) {
   document.getElementById("desg-sobrante-unidades-bar").style.width = pctUnidSobrante + "%";
   document.getElementById("desg-sobrante-unidades-count").textContent = Math.round(unidSobrante).toLocaleString("es-PE") + " un.";
 
+  document.getElementById("desg-malestado-pedidos-pct").textContent = pctOrdMalEstado + "%";
+  document.getElementById("desg-malestado-pedidos-bar").style.width = pctOrdMalEstado + "%";
+  document.getElementById("desg-malestado-pedidos-count").textContent = ordMalEstado.toLocaleString("es-PE") + " ped.";
+  document.getElementById("desg-malestado-unidades-pct").textContent = pctUnidMalEstado + "%";
+  document.getElementById("desg-malestado-unidades-bar").style.width = pctUnidMalEstado + "%";
+  document.getElementById("desg-malestado-unidades-count").textContent = Math.round(unidMalEstado).toLocaleString("es-PE") + " un.";
+
   const unidObs = rows.reduce((s,r)=> s + (estatusOf(r)!=="Conforme" ? (parseFloat(r.CANTIDAD_OBSERVADA)||0) : 0), 0);
   document.getElementById("desg-unidades-obs").textContent = unidObs.toLocaleString("es-PE") + " un.";
 }
@@ -1116,7 +1245,7 @@ function computeDailyStats(rows) {
   const perDate = {};
   rows.forEach(r => {
     const key = /^\d{8}$/.test(r.FECHA_CREACION) ? r.FECHA_CREACION : "Sin fecha";
-    if (!perDate[key]) perDate[key] = { total:0, Conforme:0, Faltante:0, Sobrante:0, "Sin Evaluar":0, evaluadas:0, unidades:0, pedidosSet:new Set() };
+    if (!perDate[key]) perDate[key] = { total:0, Conforme:0, Faltante:0, Sobrante:0, "Mal Estado":0, "Sin Evaluar":0, evaluadas:0, unidades:0, pedidosSet:new Set() };
     const est = estatusOf(r);
     perDate[key][est]++;
     perDate[key].total++;
@@ -1186,7 +1315,7 @@ function renderChart(rows) {
     const pedW = Math.min(16, slot*0.28);
     const dispLabel = /^\d{8}$/.test(d) ? d.slice(6,8)+"/"+d.slice(4,6) : d;
     const pctForTip = info.evaluadas ? (info.Conforme/info.evaluadas*100).toFixed(1) : "s/d";
-    const desvios = (info.Faltante||0) + (info.Sobrante||0);
+    const desvios = (info.Faltante||0) + (info.Sobrante||0) + (info["Mal Estado"]||0);
     svgContent += `<g class="chart-day-group transition-opacity" data-day="${dispLabel}" data-pct="${pctForTip}%" data-orders="${info.pedidosSet.size}" data-units="${Math.round(info.unidades).toLocaleString('es-PE')}" data-eval="${info.evaluadas}/${info.total}" data-desvios="${desvios}">
       <rect x="${cx-unidW-2}" y="${bottom-unidBarH}" width="${unidW}" height="${unidBarH}" rx="2" fill="url(#barGradUnidades)"></rect>
       <rect x="${cx+2}" y="${bottom-pedBarH}" width="${pedW}" height="${pedBarH}" rx="2" fill="url(#barGradPedidos)"></rect>
@@ -1266,14 +1395,15 @@ function groupByPedido(rows) {
     const destinatarios = Array.from(new Set(lines.map(l => l.DESTINATARIO).filter(Boolean)));
     const bodegas = Array.from(new Set(lines.map(l => l.BODEGA).filter(Boolean)));
     const unidades = lines.reduce((s, l) => s + (parseFloat(l.UNIDADES) || 0), 0);
-    let hasFaltante = false, hasSobrante = false, hasEvaluada = false;
+    let hasFaltante = false, hasSobrante = false, hasMalEstado = false, hasEvaluada = false;
     lines.forEach(l => {
       const est = estatusOf(l);
       if (est === "Faltante") hasFaltante = true;
       if (est === "Sobrante") hasSobrante = true;
+      if (est === "Mal Estado") hasMalEstado = true;
       if (est !== "Sin Evaluar") hasEvaluada = true;
     });
-    const estGrupo = !hasEvaluada ? "Sin Evaluar" : (hasFaltante ? "Faltante" : (hasSobrante ? "Sobrante" : "Conforme"));
+    const estGrupo = !hasEvaluada ? "Sin Evaluar" : (hasFaltante ? "Faltante" : (hasMalEstado ? "Mal Estado" : (hasSobrante ? "Sobrante" : "Conforme")));
     return { bpcs, lines, fecha: fechas[fechas.length - 1] || "", documentos, destinatarios, bodegas, unidades, estGrupo };
   });
   orders.sort((a, b) => (b.fecha || "").localeCompare(a.fecha || ""));
@@ -1468,7 +1598,7 @@ function renderPagination(totalPages) {
 const MESES_ES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 
 function statsFor(rows) {
-  const s = { total:0, Conforme:0, Faltante:0, Sobrante:0, evaluadas:0, unidades:0, pedidosSet:new Set(), obsFaltante:0, obsSobrante:0 };
+  const s = { total:0, Conforme:0, Faltante:0, Sobrante:0, "Mal Estado":0, evaluadas:0, unidades:0, pedidosSet:new Set(), obsFaltante:0, obsSobrante:0, obsMalEstado:0 };
   rows.forEach(r => {
     const est = estatusOf(r);
     s.total++;
@@ -1478,6 +1608,7 @@ function statsFor(rows) {
     s.pedidosSet.add(r.PEDIDO_BPCS);
     if (est === "Faltante") s.obsFaltante += (parseFloat(r.CANTIDAD_OBSERVADA) || 0);
     if (est === "Sobrante") s.obsSobrante += (parseFloat(r.CANTIDAD_OBSERVADA) || 0);
+    if (est === "Mal Estado") s.obsMalEstado += (parseFloat(r.CANTIDAD_OBSERVADA) || 0);
   });
   s.pctConforme = s.evaluadas ? (s.Conforme / s.evaluadas * 100) : null;
   return s;
@@ -1538,7 +1669,7 @@ function renderOtifTimeCards(baseRows) {
   document.getElementById("otif-7d-bar").style.width = (weekPct || 0) + "%";
   document.getElementById("otif-7d-bar-gap").style.width = Math.max(0, 100 - (weekPct || 0)) + "%";
   document.getElementById("otif-7d-total").textContent = weekStats.pedidosSet.size.toLocaleString("es-PE");
-  document.getElementById("otif-7d-quiebre").textContent = (weekStats.Faltante + weekStats.Sobrante).toLocaleString("es-PE") + " ped.";
+  document.getElementById("otif-7d-quiebre").textContent = (weekStats.Faltante + weekStats.Sobrante + weekStats["Mal Estado"]).toLocaleString("es-PE") + " ped.";
   const gap7 = weekPct !== null ? Math.round((weekPct - CONFIG.META_CONFORME) * 10) / 10 : null;
   const gapEl7 = document.getElementById("otif-7d-gap");
   gapEl7.textContent = gap7 === null ? "-" : (gap7 >= 0 ? `+${gap7} pts sobre meta` : `${gap7} pts bajo meta`);
@@ -1570,26 +1701,31 @@ function renderOtifTimeCards(baseRows) {
   /* --- Card 4: Atribución dominante de fallas (sobre el mes en curso) --- */
   const pctFaltante = monthStats.evaluadas ? Math.round(monthStats.Faltante / monthStats.evaluadas * 1000) / 10 : 0;
   const pctSobrante = monthStats.evaluadas ? Math.round(monthStats.Sobrante / monthStats.evaluadas * 1000) / 10 : 0;
-  const pctQuiebre = monthStats.evaluadas ? Math.round((monthStats.Faltante + monthStats.Sobrante) / monthStats.evaluadas * 1000) / 10 : 0;
+  const pctMalEstadoMes = monthStats.evaluadas ? Math.round(monthStats["Mal Estado"] / monthStats.evaluadas * 1000) / 10 : 0;
+  const pctQuiebre = monthStats.evaluadas ? Math.round((monthStats.Faltante + monthStats.Sobrante + monthStats["Mal Estado"]) / monthStats.evaluadas * 1000) / 10 : 0;
   document.getElementById("otif-atrib-badge").textContent = pctQuiebre + "% Quiebre";
 
-  let dominant, dominantPct, otherLabel, otherPct, filterValue;
-  if (monthStats.Faltante === 0 && monthStats.Sobrante === 0) {
-    dominant = "Sin incidencias en el mes"; dominantPct = 0; otherLabel = "Sobrantes"; otherPct = 0; filterValue = "all";
-  } else if (monthStats.Faltante >= monthStats.Sobrante) {
-    dominant = "Faltantes en Pedidos"; dominantPct = pctFaltante; otherLabel = "Sobrantes"; otherPct = pctSobrante; filterValue = "Faltante";
+  const categorias = [
+    { label: "Faltantes en Pedidos", otherLabel: "Faltantes", count: monthStats.Faltante, pct: pctFaltante, filterValue: "Faltante" },
+    { label: "Sobrantes en Pedidos", otherLabel: "Sobrantes", count: monthStats.Sobrante, pct: pctSobrante, filterValue: "Sobrante" },
+    { label: "Mal Estado en Pedidos", otherLabel: "Mal Estado", count: monthStats["Mal Estado"], pct: pctMalEstadoMes, filterValue: "Mal Estado" }
+  ].sort((a, b) => b.count - a.count);
+
+  let dominant, dominantPct, filterValue;
+  if (categorias[0].count === 0) {
+    dominant = "Sin incidencias en el mes"; dominantPct = 0; filterValue = "all";
   } else {
-    dominant = "Sobrantes en Pedidos"; dominantPct = pctSobrante; otherLabel = "Faltantes"; otherPct = pctFaltante; filterValue = "Sobrante";
+    dominant = categorias[0].label; dominantPct = categorias[0].pct; filterValue = categorias[0].filterValue;
   }
-  const sinEvaluarPct = monthStats.total ? Math.round((monthStats.total - monthStats.evaluadas) / monthStats.total * 1000) / 10 : 0;
 
   document.getElementById("otif-atrib-title").textContent = dominant;
   document.getElementById("otif-atrib-subtitle").textContent = dominantPct + "% de incidencias del período (" + MESES_ES[monthNum-1] + ")";
-  document.getElementById("otif-atrib-other1").textContent = otherLabel + ": " + otherPct + "%";
-  document.getElementById("otif-atrib-other2").textContent = "Sin evaluar: " + sinEvaluarPct + "%";
+  document.getElementById("otif-atrib-other1").textContent = categorias[1].otherLabel + ": " + categorias[1].pct + "%";
+  document.getElementById("otif-atrib-other2").textContent = categorias[2].otherLabel + ": " + categorias[2].pct + "%";
   document.getElementById("otif-atrib-bar-faltante").style.width = pctFaltante + "%";
   document.getElementById("otif-atrib-bar-sobrante").style.width = pctSobrante + "%";
-  const impacto = Math.round(monthStats.obsFaltante + monthStats.obsSobrante);
+  document.getElementById("otif-atrib-bar-malestado").style.width = pctMalEstadoMes + "%";
+  const impacto = Math.round(monthStats.obsFaltante + monthStats.obsSobrante + monthStats.obsMalEstado);
   document.getElementById("otif-atrib-impacto").textContent = impacto.toLocaleString("es-PE") + " unidades";
 
   const verAuditoriaBtn = document.getElementById("otif-atrib-ver-auditoria");
@@ -1602,12 +1738,187 @@ function renderOtifTimeCards(baseRows) {
   };
 }
 
+/* ---------- Vista: Monitoreo de Incidencias ---------- */
+const TIPOS_INCIDENCIA = ["Faltante", "Sobrante", "Mal Estado"];
+
+function getIncidenceRows() {
+  return ROWS.filter(r => TIPOS_INCIDENCIA.includes(estatusOf(r)));
+}
+
+function renderIncidencias() {
+  const all = getIncidenceRows();
+
+  // Contadores globales (no dependen de los filtros propios de esta vista)
+  let cPend = 0, cCurso = 0, cCerr = 0;
+  all.forEach(r => {
+    const est = (r.ESTADO_INCIDENCIA || "").trim();
+    if (est === "Pendiente" || est === "") cPend++;
+    else if (est === "En Curso") cCurso++;
+    else if (est === "Cerrado") cCerr++;
+  });
+  document.getElementById("inc-count-pendiente").textContent = cPend.toLocaleString("es-PE");
+  document.getElementById("inc-count-encurso").textContent = cCurso.toLocaleString("es-PE");
+  document.getElementById("inc-count-cerrado").textContent = cCerr.toLocaleString("es-PE");
+
+  // Filtros propios de esta vista
+  const q = (document.getElementById("inc-search").value || "").toLowerCase().trim();
+  const tipoF = document.getElementById("inc-filter-tipo").value;
+  const estF = document.getElementById("inc-filter-estado").value;
+
+  const filtered = all.filter(r => {
+    if (tipoF !== "all" && estatusOf(r) !== tipoF) return false;
+    const estadoInc = (r.ESTADO_INCIDENCIA || "").trim();
+    if (estF !== "all") {
+      if (estF === "(vacio)" ? estadoInc !== "" : estadoInc !== estF) return false;
+    }
+    if (q) {
+      const hay = (r.PEDIDO_BPCS + " " + r.DOCUMENTO + " " + r.CODIGO + " " + r.DESCRIPCION).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  filtered.sort((a, b) => (b.FECHA_CREACION || "").localeCompare(a.FECHA_CREACION || ""));
+
+  const tbody = document.getElementById("inc-tbody");
+  tbody.innerHTML = "";
+  filtered.forEach(r => {
+    const est = estatusOf(r);
+    const estadoInc = r.ESTADO_INCIDENCIA || "";
+    const tr = document.createElement("tr");
+    tr.className = "hover:bg-surface-container-low/60 transition-colors";
+    tr.innerHTML = `
+      <td class="py-space-md px-space-md">
+        <div class="flex flex-col">
+          <span class="font-bold text-on-surface font-label-md text-label-md">${fmtDateDisplay(r.FECHA_CREACION)}</span>
+          <span class="text-[11px] text-on-surface-variant">BPCS ${r.PEDIDO_BPCS} • Doc. ${r.DOCUMENTO}</span>
+        </div>
+      </td>
+      <td class="py-space-md px-space-md"><span class="text-[12px] text-on-surface">${r.DESTINATARIO || "-"}</span></td>
+      <td class="py-space-md px-space-md">
+        <div class="flex flex-col">
+          <span class="font-mono text-[12px] font-semibold text-on-surface">${r.CODIGO}</span>
+          <span class="text-[11px] text-on-surface-variant">${r.DESCRIPCION}</span>
+        </div>
+      </td>
+      <td class="py-space-md px-space-md text-center">
+        <span class="inline-flex items-center px-space-sm py-1 rounded font-label-sm text-label-sm font-bold ${badgeClass(est)}">${est}</span>
+      </td>
+      <td class="py-space-md px-space-md">
+        <div class="flex flex-col">
+          <span class="text-[12px] text-on-surface">${r.OBSERVACION || "-"}</span>
+          <span class="text-[11px] text-on-surface-variant">${r.PERSONAL_REPORTA || ""}</span>
+        </div>
+      </td>
+      <td class="py-space-md px-space-md">
+        <select class="inc-estado-select px-space-sm py-1.5 bg-surface-container-low rounded-lg text-[12px] font-semibold focus:outline-none" data-row="${r._sheetRow}">
+          <option value="" ${estadoInc === "" ? "selected" : ""}>Sin asignar</option>
+          <option value="Pendiente" ${estadoInc === "Pendiente" ? "selected" : ""}>Pendiente</option>
+          <option value="En Curso" ${estadoInc === "En Curso" ? "selected" : ""}>En Curso</option>
+          <option value="Cerrado" ${estadoInc === "Cerrado" ? "selected" : ""}>Cerrado</option>
+        </select>
+      </td>
+      <td class="py-space-md px-space-md"><span class="text-[11px] text-on-surface-variant">${r.FECHA_ESTADO || "-"}</span></td>
+      <td class="py-space-md px-space-md text-right">
+        <button class="btn-edit-inc p-1.5 rounded-lg hover:bg-surface-container-high transition-colors ${actionIconColor(est)}" data-row="${r._sheetRow}" type="button" title="Ver / Editar línea">
+          <span class="material-symbols-outlined text-[20px]">${actionIcon(est)}</span>
+        </button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById("inc-summary").textContent = `Mostrando ${filtered.length.toLocaleString("es-PE")} de ${all.length.toLocaleString("es-PE")} incidencias`;
+
+  document.querySelectorAll(".btn-edit-inc").forEach(btn => {
+    btn.addEventListener("click", () => openModal(parseInt(btn.dataset.row, 10)));
+  });
+  document.querySelectorAll(".inc-estado-select").forEach(sel => {
+    sel.addEventListener("change", () => handleIncidenceStatusChange(sel));
+  });
+}
+
+async function handleIncidenceStatusChange(selectEl) {
+  const sheetRow = parseInt(selectEl.dataset.row, 10);
+  const row = ROWS.find(r => r._sheetRow === sheetRow);
+  if (!row) return;
+  const nuevoEstado = selectEl.value;
+  const previo = row.ESTADO_INCIDENCIA || "";
+
+  if (!CONFIG.APPS_SCRIPT_URL) {
+    showToast("Modo solo lectura", "Configura APPS_SCRIPT_URL para poder guardar cambios.");
+    selectEl.value = previo;
+    return;
+  }
+  const password = window.prompt("Clave para guardar el cambio de estado de la incidencia:");
+  if (password === null) { selectEl.value = previo; return; }
+
+  const fechaEstado = new Date().toLocaleString("es-PE");
+  const payload = {
+    action: "update",
+    password: password,
+    sheetRow: row._sheetRow,
+    idPedido: row.ID_PEDIDO,
+    documento: row.DOCUMENTO,
+    codigo: row.CODIGO,
+    ESTADO_INCIDENCIA: nuevoEstado,
+    FECHA_ESTADO: fechaEstado
+  };
+  try {
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || "Error desconocido");
+    row.ESTADO_INCIDENCIA = nuevoEstado;
+    row.FECHA_ESTADO = fechaEstado;
+    showToast("Estado actualizado", `Incidencia de ${row.CODIGO} → "${nuevoEstado || "Sin asignar"}".`);
+    renderIncidencias();
+  } catch (err) {
+    console.error(err);
+    showToast("Error al actualizar", err.message);
+    selectEl.value = previo;
+  }
+}
+
+/* ---------- Cambio de pestañas (vistas) ---------- */
+function switchView(viewId) {
+  if (!viewId) {
+    showToast("Vista en construcción", "Esta sección todavía no está desarrollada.");
+    return;
+  }
+  document.querySelectorAll('[id^="view-"]').forEach(el => {
+    el.classList.toggle("hidden", el.id !== viewId);
+    el.classList.toggle("flex", el.id === viewId);
+  });
+  document.querySelectorAll(".nav-link").forEach(a => {
+    const active = a.dataset.view === viewId;
+    a.className = "nav-link px-space-md py-space-xs rounded-lg transition-colors " +
+      (active ? "bg-primary-container text-on-primary font-bold" : "font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface");
+  });
+  if (viewId === "view-incidencias") renderIncidencias();
+}
+document.querySelectorAll(".nav-link").forEach(a => {
+  a.addEventListener("click", (e) => { e.preventDefault(); switchView(a.dataset.view); });
+});
+document.getElementById("inc-search").addEventListener("input", renderIncidencias);
+document.getElementById("inc-filter-tipo").addEventListener("change", renderIncidencias);
+document.getElementById("inc-filter-estado").addEventListener("change", renderIncidencias);
+document.getElementById("inc-clear-filters").addEventListener("click", () => {
+  document.getElementById("inc-search").value = "";
+  document.getElementById("inc-filter-tipo").value = "all";
+  document.getElementById("inc-filter-estado").value = "all";
+  renderIncidencias();
+});
+
 function renderAll() {
   const filtered = getFiltered();
   renderOtifTimeCards(filtered);
   renderKPIs(filtered);
   renderChart(filtered);
   renderTable(filtered);
+  if (!document.getElementById("view-incidencias").classList.contains("hidden")) renderIncidencias();
 }
 
 /* ---------- Modal de edición ---------- */

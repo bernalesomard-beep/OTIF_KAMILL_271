@@ -582,6 +582,27 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
       </div>
     </section>
 
+    <section class="grid grid-cols-1 sm:grid-cols-3 gap-space-lg">
+      <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-1.5 h-full bg-error"></div>
+        <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Incidencias que Proceden</span>
+        <div class="font-metric-headline text-metric-headline font-bold text-error" id="inc-count-procede">0</div>
+        <span class="font-body-sm text-body-sm text-on-surface-variant">Veredicto confirma Faltante, Sobrante o Mal Estado</span>
+      </div>
+      <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-1.5 h-full bg-on-tertiary-container"></div>
+        <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Incidencias que No Proceden</span>
+        <div class="font-metric-headline text-metric-headline font-bold text-on-tertiary-container" id="inc-count-noprocede">0</div>
+        <span class="font-body-sm text-body-sm text-on-surface-variant">Veredicto = Conforme (el reclamo no se sostuvo)</span>
+      </div>
+      <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-1.5 h-full bg-outline"></div>
+        <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Sin Resolver Aún</span>
+        <div class="font-metric-headline text-metric-headline font-bold text-on-surface" id="inc-count-sinresolver">0</div>
+        <span class="font-body-sm text-body-sm text-on-surface-variant">Todavía sin Veredicto asignado</span>
+      </div>
+    </section>
+
     <!-- Filtros propios de esta vista -->
     <section class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col">
       <div class="p-space-lg bg-surface-container-low flex flex-col gap-space-md">
@@ -609,6 +630,17 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
               <option value="(vacio)">Sin estado asignado</option>
             </select>
           </div>
+          <div class="relative flex items-center">
+            <span class="material-symbols-outlined absolute left-3 text-[18px] text-on-surface-variant">gavel</span>
+            <select id="inc-filter-veredicto" class="w-full pl-9 pr-8 py-2 bg-surface-container-lowest rounded-lg font-label-md text-label-md text-on-surface focus:outline-none shadow-sm cursor-pointer appearance-none">
+              <option value="all">Veredicto: Todos</option>
+              <option value="(vacio)">Sin resolver</option>
+              <option value="Conforme">Conforme (No Procede)</option>
+              <option value="Faltante">Faltante (Procede)</option>
+              <option value="Sobrante">Sobrante (Procede)</option>
+              <option value="Mal Estado">Mal Estado (Procede)</option>
+            </select>
+          </div>
           <button id="inc-clear-filters" class="inline-flex items-center justify-center gap-1 px-space-md py-2 rounded-lg bg-surface-container-lowest text-on-surface font-label-md text-label-md font-semibold shadow-sm hover:bg-surface-container-high transition-colors" type="button">
             <span class="material-symbols-outlined text-[16px]">filter_alt_off</span> Restablecer
           </button>
@@ -621,7 +653,8 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
               <th class="py-space-md px-space-md font-bold">Fecha / BPCS / Documento</th>
               <th class="py-space-md px-space-md font-bold">Destinatario</th>
               <th class="py-space-md px-space-md font-bold">Código / Descripción</th>
-              <th class="py-space-md px-space-md font-bold text-center">Estatus</th>
+              <th class="py-space-md px-space-md font-bold text-center">Estatus Reportado</th>
+              <th class="py-space-md px-space-md font-bold">Veredicto</th>
               <th class="py-space-md px-space-md font-bold">Observación / Personal</th>
               <th class="py-space-md px-space-md font-bold">Estado de la Incidencia</th>
               <th class="py-space-md px-space-md font-bold">Fecha de Estado</th>
@@ -882,7 +915,8 @@ const HEADER_MAP = {
   "RESPUESTA DE ALMACEN": "RESPUESTA_ALMACEN",
   "ACCIONES TOMADAS": "ACCIONES_TOMADAS",
   "ESTADO INCIDENCIA": "ESTADO_INCIDENCIA",
-  "FECHA DE ESTADO": "FECHA_ESTADO"
+  "FECHA DE ESTADO": "FECHA_ESTADO",
+  "VEREDICTO": "VEREDICTO"
 };
 
 let ROWS = [];
@@ -955,6 +989,17 @@ function estatusOf(r) {
   const algoLlenado = KS_COLUMNS.some(k => (r[k] || "").trim() !== "");
   return algoLlenado ? "Sin Evaluar" : "Conforme";
 }
+
+// Estatus "efectivo" para todo cálculo de OTIF: si la incidencia ya tiene VEREDICTO
+// (tras la investigación en Monitoreo de Incidencias), ese veredicto manda sobre el
+// reporte original. Mientras no haya veredicto, se usa el ESTATUS reportado tal cual.
+const VEREDICTOS_VALIDOS = ["Conforme", "Faltante", "Sobrante", "Mal Estado"];
+function estatusEfectivo(r) {
+  const v = (r.VEREDICTO || "").trim();
+  if (VEREDICTOS_VALIDOS.includes(v)) return v;
+  return estatusOf(r);
+}
+
 function badgeClass(estatus) {
   if (estatus === "Conforme") return "badge-conforme";
   if (estatus === "Faltante") return "badge-faltante";
@@ -1074,7 +1119,7 @@ function getFiltered() {
   const fechaFilter = document.getElementById("filter-fecha").value.trim();
   const bpcsFilter = document.getElementById("filter-bpcs").value.trim();
   return ROWS.filter(r => {
-    if (estFilter !== "all" && estatusOf(r) !== estFilter) return false;
+    if (estFilter !== "all" && estatusEfectivo(r) !== estFilter) return false;
     if (bodegaFilter !== "all" && r.BODEGA !== bodegaFilter) return false;
     if (mesFilter !== "all" && r.FECHA_CREACION.slice(0, 6) !== mesFilter) return false;
     if (docFilter && !String(r.DOCUMENTO || "").toLowerCase().includes(docFilter.toLowerCase())) return false;
@@ -1092,10 +1137,10 @@ function getFiltered() {
 function renderKPIs(rows) {
   const total = rows.length;
   const unidades = rows.reduce((s,r) => s + (parseFloat(r.UNIDADES) || 0), 0);
-  const conforme = rows.filter(r => estatusOf(r) === "Conforme");
-  const faltante = rows.filter(r => estatusOf(r) === "Faltante");
-  const sobrante = rows.filter(r => estatusOf(r) === "Sobrante");
-  const malestado = rows.filter(r => estatusOf(r) === "Mal Estado");
+  const conforme = rows.filter(r => estatusEfectivo(r) === "Conforme");
+  const faltante = rows.filter(r => estatusEfectivo(r) === "Faltante");
+  const sobrante = rows.filter(r => estatusEfectivo(r) === "Sobrante");
+  const malestado = rows.filter(r => estatusEfectivo(r) === "Mal Estado");
   const evaluadas = conforme.length + faltante.length + sobrante.length + malestado.length;
   const sinEvaluar = total - evaluadas;
   const pctConforme = evaluadas ? Math.round((conforme.length / evaluadas) * 1000) / 10 : 0;
@@ -1159,7 +1204,7 @@ function renderKPIs(rows) {
   rows.forEach(r => {
     const bpcs = r.PEDIDO_BPCS || "(sin bpcs)";
     if (!ordersMap[bpcs]) ordersMap[bpcs] = { hasFaltante:false, hasSobrante:false, hasMalEstado:false, hasConforme:false, hasEvaluada:false };
-    const est = estatusOf(r);
+    const est = estatusEfectivo(r);
     if (est === "Faltante") ordersMap[bpcs].hasFaltante = true;
     if (est === "Sobrante") ordersMap[bpcs].hasSobrante = true;
     if (est === "Mal Estado") ordersMap[bpcs].hasMalEstado = true;
@@ -1236,7 +1281,7 @@ function renderKPIs(rows) {
   document.getElementById("desg-malestado-unidades-bar").style.width = pctUnidMalEstado + "%";
   document.getElementById("desg-malestado-unidades-count").textContent = Math.round(unidMalEstado).toLocaleString("es-PE") + " un.";
 
-  const unidObs = rows.reduce((s,r)=> s + (estatusOf(r)!=="Conforme" ? (parseFloat(r.CANTIDAD_OBSERVADA)||0) : 0), 0);
+  const unidObs = rows.reduce((s,r)=> s + (estatusEfectivo(r)!=="Conforme" ? (parseFloat(r.CANTIDAD_OBSERVADA)||0) : 0), 0);
   document.getElementById("desg-unidades-obs").textContent = unidObs.toLocaleString("es-PE") + " un.";
 }
 
@@ -1246,7 +1291,7 @@ function computeDailyStats(rows) {
   rows.forEach(r => {
     const key = /^\d{8}$/.test(r.FECHA_CREACION) ? r.FECHA_CREACION : "Sin fecha";
     if (!perDate[key]) perDate[key] = { total:0, Conforme:0, Faltante:0, Sobrante:0, "Mal Estado":0, "Sin Evaluar":0, evaluadas:0, unidades:0, pedidosSet:new Set() };
-    const est = estatusOf(r);
+    const est = estatusEfectivo(r);
     perDate[key][est]++;
     perDate[key].total++;
     if (est !== "Sin Evaluar") perDate[key].evaluadas++;
@@ -1397,7 +1442,7 @@ function groupByPedido(rows) {
     const unidades = lines.reduce((s, l) => s + (parseFloat(l.UNIDADES) || 0), 0);
     let hasFaltante = false, hasSobrante = false, hasMalEstado = false, hasEvaluada = false;
     lines.forEach(l => {
-      const est = estatusOf(l);
+      const est = estatusEfectivo(l);
       if (est === "Faltante") hasFaltante = true;
       if (est === "Sobrante") hasSobrante = true;
       if (est === "Mal Estado") hasMalEstado = true;
@@ -1481,7 +1526,8 @@ function renderTable(rows) {
             </thead>
             <tbody class="divide-y divide-surface-container-lowest font-body-sm text-body-sm text-on-surface">
               ${o.lines.map(r => {
-                const est = estatusOf(r);
+                const est = estatusEfectivo(r);
+                const huboVeredicto = VEREDICTOS_VALIDOS.includes((r.VEREDICTO||"").trim());
                 return `<tr class="hover:bg-surface-container-lowest/60 transition-colors">
                   <td class="py-space-sm px-space-lg">
                     <div class="flex flex-col">
@@ -1492,6 +1538,7 @@ function renderTable(rows) {
                   <td class="py-space-sm px-space-md text-right font-semibold">${r.UNIDADES}</td>
                   <td class="py-space-sm px-space-md text-center">
                     <span class="inline-flex items-center px-space-sm py-1 rounded font-label-sm text-label-sm font-bold ${badgeClass(est)}">${est}</span>
+                    ${huboVeredicto ? `<div class="text-[10px] text-on-surface-variant mt-0.5">Reportado: ${estatusOf(r)}</div>` : ""}
                   </td>
                   <td class="py-space-sm px-space-md">
                     <div class="flex flex-col">
@@ -1600,7 +1647,7 @@ const MESES_ES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agos
 function statsFor(rows) {
   const s = { total:0, Conforme:0, Faltante:0, Sobrante:0, "Mal Estado":0, evaluadas:0, unidades:0, pedidosSet:new Set(), obsFaltante:0, obsSobrante:0, obsMalEstado:0 };
   rows.forEach(r => {
-    const est = estatusOf(r);
+    const est = estatusEfectivo(r);
     s.total++;
     s[est] = (s[est] || 0) + 1;
     if (est !== "Sin Evaluar") s.evaluadas++;
@@ -1749,27 +1796,40 @@ function renderIncidencias() {
   const all = getIncidenceRows();
 
   // Contadores globales (no dependen de los filtros propios de esta vista)
-  let cPend = 0, cCurso = 0, cCerr = 0;
+  let cPend = 0, cCurso = 0, cCerr = 0, cProcede = 0, cNoProcede = 0, cSinResolver = 0;
   all.forEach(r => {
     const est = (r.ESTADO_INCIDENCIA || "").trim();
     if (est === "Pendiente" || est === "") cPend++;
     else if (est === "En Curso") cCurso++;
     else if (est === "Cerrado") cCerr++;
+
+    const ver = (r.VEREDICTO || "").trim();
+    if (!VEREDICTOS_VALIDOS.includes(ver)) cSinResolver++;
+    else if (ver === "Conforme") cNoProcede++;
+    else cProcede++; // Faltante, Sobrante o Mal Estado confirmados
   });
   document.getElementById("inc-count-pendiente").textContent = cPend.toLocaleString("es-PE");
   document.getElementById("inc-count-encurso").textContent = cCurso.toLocaleString("es-PE");
   document.getElementById("inc-count-cerrado").textContent = cCerr.toLocaleString("es-PE");
+  document.getElementById("inc-count-procede").textContent = cProcede.toLocaleString("es-PE");
+  document.getElementById("inc-count-noprocede").textContent = cNoProcede.toLocaleString("es-PE");
+  document.getElementById("inc-count-sinresolver").textContent = cSinResolver.toLocaleString("es-PE");
 
   // Filtros propios de esta vista
   const q = (document.getElementById("inc-search").value || "").toLowerCase().trim();
   const tipoF = document.getElementById("inc-filter-tipo").value;
   const estF = document.getElementById("inc-filter-estado").value;
+  const verF = document.getElementById("inc-filter-veredicto").value;
 
   const filtered = all.filter(r => {
     if (tipoF !== "all" && estatusOf(r) !== tipoF) return false;
     const estadoInc = (r.ESTADO_INCIDENCIA || "").trim();
     if (estF !== "all") {
       if (estF === "(vacio)" ? estadoInc !== "" : estadoInc !== estF) return false;
+    }
+    const veredicto = (r.VEREDICTO || "").trim();
+    if (verF !== "all") {
+      if (verF === "(vacio)" ? VEREDICTOS_VALIDOS.includes(veredicto) : veredicto !== verF) return false;
     }
     if (q) {
       const hay = (r.PEDIDO_BPCS + " " + r.DOCUMENTO + " " + r.CODIGO + " " + r.DESCRIPCION).toLowerCase();
@@ -1783,8 +1843,9 @@ function renderIncidencias() {
   const tbody = document.getElementById("inc-tbody");
   tbody.innerHTML = "";
   filtered.forEach(r => {
-    const est = estatusOf(r);
+    const est = estatusOf(r); // estatus reportado originalmente (histórico, no cambia con el veredicto)
     const estadoInc = r.ESTADO_INCIDENCIA || "";
+    const veredicto = r.VEREDICTO || "";
     const tr = document.createElement("tr");
     tr.className = "hover:bg-surface-container-low/60 transition-colors";
     tr.innerHTML = `
@@ -1803,6 +1864,15 @@ function renderIncidencias() {
       </td>
       <td class="py-space-md px-space-md text-center">
         <span class="inline-flex items-center px-space-sm py-1 rounded font-label-sm text-label-sm font-bold ${badgeClass(est)}">${est}</span>
+      </td>
+      <td class="py-space-md px-space-md">
+        <select class="inc-veredicto-select px-space-sm py-1.5 bg-surface-container-low rounded-lg text-[12px] font-semibold focus:outline-none" data-row="${r._sheetRow}">
+          <option value="" ${veredicto === "" ? "selected" : ""}>Sin resolver</option>
+          <option value="Conforme" ${veredicto === "Conforme" ? "selected" : ""}>Conforme (No Procede)</option>
+          <option value="Faltante" ${veredicto === "Faltante" ? "selected" : ""}>Faltante (Procede)</option>
+          <option value="Sobrante" ${veredicto === "Sobrante" ? "selected" : ""}>Sobrante (Procede)</option>
+          <option value="Mal Estado" ${veredicto === "Mal Estado" ? "selected" : ""}>Mal Estado (Procede)</option>
+        </select>
       </td>
       <td class="py-space-md px-space-md">
         <div class="flex flex-col">
@@ -1834,6 +1904,9 @@ function renderIncidencias() {
   });
   document.querySelectorAll(".inc-estado-select").forEach(sel => {
     sel.addEventListener("change", () => handleIncidenceStatusChange(sel));
+  });
+  document.querySelectorAll(".inc-veredicto-select").forEach(sel => {
+    sel.addEventListener("change", () => handleVeredictoChange(sel));
   });
 }
 
@@ -1882,6 +1955,52 @@ async function handleIncidenceStatusChange(selectEl) {
   }
 }
 
+async function handleVeredictoChange(selectEl) {
+  const sheetRow = parseInt(selectEl.dataset.row, 10);
+  const row = ROWS.find(r => r._sheetRow === sheetRow);
+  if (!row) return;
+  const nuevoVeredicto = selectEl.value;
+  const previo = row.VEREDICTO || "";
+
+  if (!CONFIG.APPS_SCRIPT_URL) {
+    showToast("Modo solo lectura", "Configura APPS_SCRIPT_URL para poder guardar cambios.");
+    selectEl.value = previo;
+    return;
+  }
+  const password = window.prompt("Clave para guardar el Veredicto (esto puede cambiar el OTIF):");
+  if (password === null) { selectEl.value = previo; return; }
+
+  const payload = {
+    action: "update",
+    password: password,
+    sheetRow: row._sheetRow,
+    idPedido: row.ID_PEDIDO,
+    documento: row.DOCUMENTO,
+    codigo: row.CODIGO,
+    VEREDICTO: nuevoVeredicto
+  };
+  try {
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || "Error desconocido");
+    row.VEREDICTO = nuevoVeredicto;
+    const msg = nuevoVeredicto === "" ? "Sin resolver"
+      : nuevoVeredicto === "Conforme" ? "Conforme (No Procede)"
+      : nuevoVeredicto + " (Procede)";
+    showToast("Veredicto guardado", `${row.CODIGO}: ${msg}. El OTIF se recalculó.`);
+    renderIncidencias();
+    renderAll(); // el veredicto puede cambiar el OTIF en todo el Tablero
+  } catch (err) {
+    console.error(err);
+    showToast("Error al actualizar", err.message);
+    selectEl.value = previo;
+  }
+}
+
 /* ---------- Cambio de pestañas (vistas) ---------- */
 function switchView(viewId) {
   if (!viewId) {
@@ -1905,10 +2024,12 @@ document.querySelectorAll(".nav-link").forEach(a => {
 document.getElementById("inc-search").addEventListener("input", renderIncidencias);
 document.getElementById("inc-filter-tipo").addEventListener("change", renderIncidencias);
 document.getElementById("inc-filter-estado").addEventListener("change", renderIncidencias);
+document.getElementById("inc-filter-veredicto").addEventListener("change", renderIncidencias);
 document.getElementById("inc-clear-filters").addEventListener("click", () => {
   document.getElementById("inc-search").value = "";
   document.getElementById("inc-filter-tipo").value = "all";
   document.getElementById("inc-filter-estado").value = "all";
+  document.getElementById("inc-filter-veredicto").value = "all";
   renderIncidencias();
 });
 
@@ -2132,7 +2253,7 @@ async function saveAddLine() {
 document.getElementById("addline-close-btn").addEventListener("click", closeAddLineModal);
 document.getElementById("addline-cancel").addEventListener("click", closeAddLineModal);
 document.getElementById("addline-save").addEventListener("click", saveAddLine);
-const EXPORT_HEADERS = ["ID_PEDIDO","FECHA_CREACION","PEDIDO_BPCS","BODEGA","DOCUMENTO","DESTINATARIO","CODIGO","DESCRIPCION","UNIDADES","EAN13","ESTATUS","FECHA","OBSERVACION","CANTIDAD_OBSERVADA","FECHA_RESPUESTA","RESPUESTA_DESPACHO","PERSONAL_REPORTA","FECHA_ALMACEN","RESPUESTA_ALMACEN","ACCIONES_TOMADAS"];
+const EXPORT_HEADERS = ["ID_PEDIDO","FECHA_CREACION","PEDIDO_BPCS","BODEGA","DOCUMENTO","DESTINATARIO","CODIGO","DESCRIPCION","UNIDADES","EAN13","ESTATUS","FECHA","OBSERVACION","CANTIDAD_OBSERVADA","FECHA_RESPUESTA","RESPUESTA_DESPACHO","PERSONAL_REPORTA","FECHA_ALMACEN","RESPUESTA_ALMACEN","ACCIONES_TOMADAS","VEREDICTO","ESTADO_INCIDENCIA","FECHA_ESTADO"];
 
 function exportCSV() {
   const rows = getFiltered();
@@ -2153,7 +2274,7 @@ function exportXLSX(rows, filenameSuffix) {
   if (!window.XLSX) { alert("La librería de Excel no cargó. Verifica tu conexión a internet."); return; }
   if (!rows.length) { alert("No hay pedidos para exportar con los filtros/selección actuales."); return; }
 
-  const niceHeaders = ["ID Pedido","Fecha Creación","Pedido BPCS","Bodega","Documento","Destinatario","Código","Descripción","Unidades","EAN13","Estatus","Fecha Evaluación","Observación","Cantidad Observada","Fecha Respuesta","Respuesta Despacho","Personal Reporta","Fecha Almacén","Respuesta Almacén","Acciones Tomadas"];
+  const niceHeaders = ["ID Pedido","Fecha Creación","Pedido BPCS","Bodega","Documento","Destinatario","Código","Descripción","Unidades","EAN13","Estatus","Fecha Evaluación","Observación","Cantidad Observada","Fecha Respuesta","Respuesta Despacho","Personal Reporta","Fecha Almacén","Respuesta Almacén","Acciones Tomadas","Veredicto","Estado Incidencia","Fecha de Estado"];
   const data = rows.map(r => EXPORT_HEADERS.reduce((acc, h) => {
     acc[niceHeaders[EXPORT_HEADERS.indexOf(h)]] = (h === "ESTATUS") ? estatusOf(r) : (r[h] || "");
     return acc;

@@ -645,17 +645,35 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
             <span class="material-symbols-outlined text-[16px]">filter_alt_off</span> Restablecer
           </button>
         </div>
+        <div class="flex justify-end">
+          <button id="inc-export-xlsx-btn" class="inline-flex items-center gap-1 px-space-md py-2 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-bold shadow-sm hover:opacity-90 transition-opacity" type="button">
+            <span class="material-symbols-outlined text-[18px]">ios_share</span> Exportar Excel
+          </button>
+        </div>
+        <div class="hidden items-center justify-between gap-space-sm px-space-md py-space-xs rounded-lg bg-secondary-container/25 border border-secondary-container" id="inc-bulk-bar">
+          <span class="font-label-sm text-label-sm font-semibold text-on-surface"><strong id="inc-bulk-count">0</strong> incidencia(s) seleccionada(s)</span>
+          <div class="flex items-center gap-space-xs">
+            <button id="inc-bulk-export-btn" class="inline-flex items-center gap-1 px-space-sm py-1 rounded-lg bg-surface-container-lowest text-on-surface font-label-sm text-label-sm font-semibold shadow-sm hover:bg-surface-container-high transition-colors" type="button">
+              <span class="material-symbols-outlined text-[16px]">ios_share</span> Exportar seleccionadas (Excel)
+            </button>
+            <button id="inc-bulk-clear-btn" class="inline-flex items-center gap-1 px-space-sm py-1 rounded-lg bg-surface-container-lowest text-on-surface-variant font-label-sm text-label-sm font-semibold shadow-sm hover:bg-surface-container-high transition-colors" type="button">
+              <span class="material-symbols-outlined text-[16px]">close</span> Limpiar
+            </button>
+          </div>
+        </div>
       </div>
       <div class="w-full overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-surface-container-high/60 text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+              <th class="py-space-md px-space-md font-bold w-10"><input type="checkbox" id="inc-select-all"></th>
               <th class="py-space-md px-space-md font-bold">Fecha / BPCS / Documento</th>
               <th class="py-space-md px-space-md font-bold">Destinatario</th>
               <th class="py-space-md px-space-md font-bold">Código / Descripción</th>
               <th class="py-space-md px-space-md font-bold text-center">Estatus Reportado</th>
               <th class="py-space-md px-space-md font-bold">Veredicto</th>
               <th class="py-space-md px-space-md font-bold">Observación / Personal</th>
+              <th class="py-space-md px-space-md font-bold text-right">Cantidad Observada</th>
               <th class="py-space-md px-space-md font-bold">Estado de la Incidencia</th>
               <th class="py-space-md px-space-md font-bold">Fecha de Estado</th>
               <th class="py-space-md px-space-md font-bold text-right">Acción</th>
@@ -1846,9 +1864,13 @@ function renderIncidencias() {
     const est = estatusOf(r); // estatus reportado originalmente (histórico, no cambia con el veredicto)
     const estadoInc = r.ESTADO_INCIDENCIA || "";
     const veredicto = r.VEREDICTO || "";
+    const isSelected = selectedRows.has(r._sheetRow);
     const tr = document.createElement("tr");
-    tr.className = "hover:bg-surface-container-low/60 transition-colors";
+    tr.className = "hover:bg-surface-container-low/60 transition-colors" + (isSelected ? " row-selected" : "");
     tr.innerHTML = `
+      <td class="py-space-md px-space-md">
+        <input type="checkbox" class="inc-row-checkbox" data-row="${r._sheetRow}" ${isSelected ? "checked" : ""}>
+      </td>
       <td class="py-space-md px-space-md">
         <div class="flex flex-col">
           <span class="font-bold text-on-surface font-label-md text-label-md">${fmtDateDisplay(r.FECHA_CREACION)}</span>
@@ -1880,6 +1902,7 @@ function renderIncidencias() {
           <span class="text-[11px] text-on-surface-variant">${r.PERSONAL_REPORTA || ""}</span>
         </div>
       </td>
+      <td class="py-space-md px-space-md text-right font-semibold">${r.CANTIDAD_OBSERVADA || "0"}</td>
       <td class="py-space-md px-space-md">
         <select class="inc-estado-select px-space-sm py-1.5 bg-surface-container-low rounded-lg text-[12px] font-semibold focus:outline-none" data-row="${r._sheetRow}">
           <option value="" ${estadoInc === "" ? "selected" : ""}>Sin asignar</option>
@@ -1897,6 +1920,7 @@ function renderIncidencias() {
     tbody.appendChild(tr);
   });
 
+  LAST_FILTERED_INCIDENCIAS = filtered;
   document.getElementById("inc-summary").textContent = `Mostrando ${filtered.length.toLocaleString("es-PE")} de ${all.length.toLocaleString("es-PE")} incidencias`;
 
   document.querySelectorAll(".btn-edit-inc").forEach(btn => {
@@ -1908,7 +1932,51 @@ function renderIncidencias() {
   document.querySelectorAll(".inc-veredicto-select").forEach(sel => {
     sel.addEventListener("change", () => handleVeredictoChange(sel));
   });
+  document.querySelectorAll(".inc-row-checkbox").forEach(cb => {
+    cb.addEventListener("change", () => {
+      const rowId = parseInt(cb.dataset.row, 10);
+      if (cb.checked) selectedRows.add(rowId); else selectedRows.delete(rowId);
+      cb.closest("tr").classList.toggle("row-selected", cb.checked);
+      updateIncSelectAllState();
+      updateIncBulkBar();
+    });
+  });
+  updateIncSelectAllState();
+  updateIncBulkBar();
 }
+
+let LAST_FILTERED_INCIDENCIAS = [];
+
+function updateIncSelectAllState() {
+  const selectAll = document.getElementById("inc-select-all");
+  if (!selectAll) return;
+  selectAll.checked = LAST_FILTERED_INCIDENCIAS.length > 0 && LAST_FILTERED_INCIDENCIAS.every(r => selectedRows.has(r._sheetRow));
+}
+
+function updateIncBulkBar() {
+  const bar = document.getElementById("inc-bulk-bar");
+  const countEl = document.getElementById("inc-bulk-count");
+  if (!bar || !countEl) return;
+  const selectedInView = LAST_FILTERED_INCIDENCIAS.filter(r => selectedRows.has(r._sheetRow)).length;
+  countEl.textContent = selectedInView;
+  bar.classList.toggle("hidden", selectedInView === 0);
+  bar.classList.toggle("flex", selectedInView > 0);
+}
+
+document.getElementById("inc-select-all").addEventListener("change", (e) => {
+  if (e.target.checked) LAST_FILTERED_INCIDENCIAS.forEach(r => selectedRows.add(r._sheetRow));
+  else LAST_FILTERED_INCIDENCIAS.forEach(r => selectedRows.delete(r._sheetRow));
+  renderIncidencias();
+});
+document.getElementById("inc-export-xlsx-btn").addEventListener("click", () => exportXLSX(LAST_FILTERED_INCIDENCIAS, "incidencias"));
+document.getElementById("inc-bulk-export-btn").addEventListener("click", () => {
+  const selected = LAST_FILTERED_INCIDENCIAS.filter(r => selectedRows.has(r._sheetRow));
+  exportXLSX(selected, "incidencias_seleccionadas");
+});
+document.getElementById("inc-bulk-clear-btn").addEventListener("click", () => {
+  LAST_FILTERED_INCIDENCIAS.forEach(r => selectedRows.delete(r._sheetRow));
+  renderIncidencias();
+});
 
 async function handleIncidenceStatusChange(selectEl) {
   const sheetRow = parseInt(selectEl.dataset.row, 10);

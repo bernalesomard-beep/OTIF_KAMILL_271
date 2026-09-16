@@ -48,7 +48,7 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
       <nav class="hidden xl:flex items-center gap-space-xs" id="main-nav">
         <a id="nav-tablero" class="nav-link px-space-md py-space-xs rounded-lg transition-colors bg-primary-container text-on-primary font-bold" href="#" data-view="view-tablero">Tablero OTIF</a>
         <a id="nav-incidencias" class="nav-link font-label-md text-label-md px-space-md py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" href="#" data-view="view-incidencias">Monitoreo de Incidencias</a>
-        <a class="nav-link font-label-md text-label-md px-space-md py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" href="#" data-view="">Auditoría y Desvíos</a>
+        <a id="nav-resumen" class="nav-link font-label-md text-label-md px-space-md py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" href="#" data-view="view-resumen">Cuadros Resumen</a>
         <a class="nav-link font-label-md text-label-md px-space-md py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" href="#" data-view="">Reportes Ejecutivos</a>
       </nav>
     </div>
@@ -686,6 +686,118 @@ tr.row-selected{background-color:rgba(91,184,254,0.12);}
         <span class="font-label-sm text-label-sm text-on-surface-variant" id="inc-summary">Mostrando 0 incidencias</span>
       </div>
     </section>
+  </div>
+</div>
+
+<!-- ==================== VISTA: CUADROS RESUMEN ==================== -->
+<div id="view-resumen" class="hidden w-full flex-col">
+  <section class="w-full px-margin py-space-md bg-surface-container-lowest shadow-sm">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-sm">
+      <div class="flex flex-col gap-space-xs">
+        <span class="font-headline-md text-headline-md font-bold text-on-surface">Cuadros Resumen</span>
+        <span class="font-body-sm text-body-sm text-on-surface-variant">Consolidado mensual de cumplimiento, desglosado por tipo de incidencia, bodega y veredicto. Usa el filtro de Bodega de la cabecera si quieres acotarlo.</span>
+      </div>
+      <button id="res-export-xlsx-btn" class="inline-flex items-center gap-1 px-space-md py-2 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-bold shadow-sm hover:opacity-90 transition-opacity shrink-0" type="button">
+        <span class="material-symbols-outlined text-[18px]">ios_share</span> Exportar Cuadros (Excel)
+      </button>
+    </div>
+  </section>
+
+  <div class="w-full px-margin py-space-lg flex flex-col gap-space-xl">
+
+    <!-- Cuadro 1: Resumen Mensual General -->
+    <section class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg flex flex-col gap-space-sm">
+      <span class="font-headline-md text-headline-md font-bold text-on-surface">Resumen Mensual de Cumplimiento</span>
+      <p class="font-body-sm text-body-sm text-on-surface-variant">Pedidos únicos (BPCS) solicitados por mes vs. pedidos con alguna incidencia (Faltante, Sobrante o Mal Estado, ya con veredicto aplicado si existe).</p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse" id="tbl-resumen-mensual">
+          <thead>
+            <tr class="bg-surface-container-high text-on-surface font-label-sm text-label-sm uppercase tracking-wider">
+              <th class="py-space-sm px-space-md font-bold text-center">N°</th>
+              <th class="py-space-sm px-space-md font-bold">Mes</th>
+              <th class="py-space-sm px-space-md font-bold text-right">Pedidos Solicitados</th>
+              <th class="py-space-sm px-space-md font-bold text-right">Incidencia</th>
+              <th class="py-space-sm px-space-md font-bold text-right">% Cumplimiento</th>
+            </tr>
+          </thead>
+          <tbody id="tbl-resumen-mensual-body" class="divide-y divide-surface-container-low font-body-sm text-body-sm text-on-surface"></tbody>
+          <tfoot>
+            <tr class="font-bold bg-surface-container-low">
+              <td class="py-space-sm px-space-md" colspan="2">Total / Promedio Ponderado</td>
+              <td class="py-space-sm px-space-md text-right" id="tbl-resumen-mensual-total-sol">0</td>
+              <td class="py-space-sm px-space-md text-right" id="tbl-resumen-mensual-total-inc">0</td>
+              <td class="py-space-sm px-space-md text-right" id="tbl-resumen-mensual-total-pct">0%</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </section>
+
+    <!-- Cuadro 2: Resumen Mensual por Tipo de Incidencia -->
+    <section class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg flex flex-col gap-space-sm">
+      <span class="font-headline-md text-headline-md font-bold text-on-surface">Resumen Mensual por Tipo de Incidencia</span>
+      <p class="font-body-sm text-body-sm text-on-surface-variant">Cada pedido se clasifica en un solo tipo (el más grave de sus líneas), por eso Faltante + Sobrante + Mal Estado = la columna "Incidencia" del cuadro anterior.</p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse" id="tbl-resumen-tipo">
+          <thead>
+            <tr class="bg-surface-container-high text-on-surface font-label-sm text-label-sm uppercase tracking-wider">
+              <th class="py-space-sm px-space-md font-bold text-center">N°</th>
+              <th class="py-space-sm px-space-md font-bold">Mes</th>
+              <th class="py-space-sm px-space-md font-bold text-right">Pedidos Solicitados</th>
+              <th class="py-space-sm px-space-md font-bold text-right text-error">Faltante</th>
+              <th class="py-space-sm px-space-md font-bold text-right text-secondary">Sobrante</th>
+              <th class="py-space-sm px-space-md font-bold text-right text-amber-600">Mal Estado</th>
+              <th class="py-space-sm px-space-md font-bold text-right">% Cumplimiento</th>
+            </tr>
+          </thead>
+          <tbody id="tbl-resumen-tipo-body" class="divide-y divide-surface-container-low font-body-sm text-body-sm text-on-surface"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Cuadro 3: Resumen por Bodega -->
+    <section class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg flex flex-col gap-space-sm">
+      <span class="font-headline-md text-headline-md font-bold text-on-surface">Resumen por Bodega</span>
+      <p class="font-body-sm text-body-sm text-on-surface-variant">El mismo desglose, pero comparando bodegas en vez de meses (sobre todo el histórico filtrado).</p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse" id="tbl-resumen-bodega">
+          <thead>
+            <tr class="bg-surface-container-high text-on-surface font-label-sm text-label-sm uppercase tracking-wider">
+              <th class="py-space-sm px-space-md font-bold text-center">N°</th>
+              <th class="py-space-sm px-space-md font-bold">Bodega</th>
+              <th class="py-space-sm px-space-md font-bold text-right">Pedidos Solicitados</th>
+              <th class="py-space-sm px-space-md font-bold text-right text-error">Faltante</th>
+              <th class="py-space-sm px-space-md font-bold text-right text-secondary">Sobrante</th>
+              <th class="py-space-sm px-space-md font-bold text-right text-amber-600">Mal Estado</th>
+              <th class="py-space-sm px-space-md font-bold text-right">% Cumplimiento</th>
+            </tr>
+          </thead>
+          <tbody id="tbl-resumen-bodega-body" class="divide-y divide-surface-container-low font-body-sm text-body-sm text-on-surface"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Cuadro 4: Resumen de Veredictos por Mes -->
+    <section class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg flex flex-col gap-space-sm">
+      <span class="font-headline-md text-headline-md font-bold text-on-surface">Resumen de Veredictos por Mes</span>
+      <p class="font-body-sm text-body-sm text-on-surface-variant">De las incidencias reportadas cada mes (por fecha de reporte), cuántas ya se investigaron y si procedían o no.</p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse" id="tbl-resumen-veredicto">
+          <thead>
+            <tr class="bg-surface-container-high text-on-surface font-label-sm text-label-sm uppercase tracking-wider">
+              <th class="py-space-sm px-space-md font-bold text-center">N°</th>
+              <th class="py-space-sm px-space-md font-bold">Mes</th>
+              <th class="py-space-sm px-space-md font-bold text-right">Incidencias Reportadas</th>
+              <th class="py-space-sm px-space-md font-bold text-right text-error">Proceden</th>
+              <th class="py-space-sm px-space-md font-bold text-right text-on-tertiary-container">No Proceden</th>
+              <th class="py-space-sm px-space-md font-bold text-right text-outline">Sin Resolver</th>
+            </tr>
+          </thead>
+          <tbody id="tbl-resumen-veredicto-body" class="divide-y divide-surface-container-low font-body-sm text-body-sm text-on-surface"></tbody>
+        </table>
+      </div>
+    </section>
+
   </div>
 </div>
 
@@ -2069,6 +2181,170 @@ async function handleVeredictoChange(selectEl) {
   }
 }
 
+/* ---------- Vista: Cuadros Resumen ---------- */
+function getResumenBaseRows() {
+  const bodegaFilter = document.getElementById("filter-bodega").value;
+  return ROWS.filter(r => bodegaFilter === "all" || r.BODEGA === bodegaFilter);
+}
+
+function pct(part, total) {
+  return total ? Math.round((part / total) * 10000) / 100 : 100;
+}
+
+// Agrupa filas en "buckets" (por mes o por bodega) y devuelve, para cada bucket,
+// el conteo de pedidos únicos (BPCS) solicitados y su clasificación por peor estatus efectivo.
+function summarizeByBucket(rows, bucketFn, labelFn) {
+  const buckets = {};
+  rows.forEach(r => {
+    const key = bucketFn(r);
+    if (key === null) return;
+    if (!buckets[key]) buckets[key] = [];
+    buckets[key].push(r);
+  });
+  return Object.keys(buckets).sort().map(key => {
+    const orders = groupByPedido(buckets[key]); // ya usa estatusEfectivo() internamente
+    const solicitados = orders.length;
+    const faltante = orders.filter(o => o.estGrupo === "Faltante").length;
+    const sobrante = orders.filter(o => o.estGrupo === "Sobrante").length;
+    const malestado = orders.filter(o => o.estGrupo === "Mal Estado").length;
+    const incidencia = faltante + sobrante + malestado;
+    return { key, label: labelFn(key), solicitados, faltante, sobrante, malestado, incidencia, pctCumpl: pct(solicitados - incidencia, solicitados) };
+  });
+}
+
+function monthBucketKey(r) {
+  return /^\d{8}$/.test(r.FECHA_CREACION) ? r.FECHA_CREACION.slice(0, 6) : null;
+}
+function monthBucketLabel(mk) {
+  const y = mk.slice(0, 4), m = parseInt(mk.slice(4, 6), 10);
+  return MESES_ES[m - 1] + " " + y;
+}
+
+function renderCuadrosResumen() {
+  const base = getResumenBaseRows();
+
+  /* --- Cuadro 1 y 2: por mes --- */
+  const monthly = summarizeByBucket(base, monthBucketKey, monthBucketLabel);
+
+  const tbody1 = document.getElementById("tbl-resumen-mensual-body");
+  const tbody2 = document.getElementById("tbl-resumen-tipo-body");
+  tbody1.innerHTML = "";
+  tbody2.innerHTML = "";
+  let totSol = 0, totInc = 0;
+  monthly.forEach((m, i) => {
+    totSol += m.solicitados; totInc += m.incidencia;
+    tbody1.innerHTML += `<tr>
+      <td class="py-space-sm px-space-md text-center">${i + 1}</td>
+      <td class="py-space-sm px-space-md font-semibold">${m.label}</td>
+      <td class="py-space-sm px-space-md text-right">${m.solicitados.toLocaleString("es-PE")}</td>
+      <td class="py-space-sm px-space-md text-right">${m.incidencia.toLocaleString("es-PE")}</td>
+      <td class="py-space-sm px-space-md text-right font-bold ${m.pctCumpl < 95 ? "text-error" : "text-on-tertiary-container"}">${m.pctCumpl.toFixed(2)}%</td>
+    </tr>`;
+    tbody2.innerHTML += `<tr>
+      <td class="py-space-sm px-space-md text-center">${i + 1}</td>
+      <td class="py-space-sm px-space-md font-semibold">${m.label}</td>
+      <td class="py-space-sm px-space-md text-right">${m.solicitados.toLocaleString("es-PE")}</td>
+      <td class="py-space-sm px-space-md text-right text-error font-semibold">${m.faltante.toLocaleString("es-PE")}</td>
+      <td class="py-space-sm px-space-md text-right text-secondary font-semibold">${m.sobrante.toLocaleString("es-PE")}</td>
+      <td class="py-space-sm px-space-md text-right text-amber-600 font-semibold">${m.malestado.toLocaleString("es-PE")}</td>
+      <td class="py-space-sm px-space-md text-right font-bold ${m.pctCumpl < 95 ? "text-error" : "text-on-tertiary-container"}">${m.pctCumpl.toFixed(2)}%</td>
+    </tr>`;
+  });
+  document.getElementById("tbl-resumen-mensual-total-sol").textContent = totSol.toLocaleString("es-PE");
+  document.getElementById("tbl-resumen-mensual-total-inc").textContent = totInc.toLocaleString("es-PE");
+  document.getElementById("tbl-resumen-mensual-total-pct").textContent = pct(totSol - totInc, totSol).toFixed(2) + "%";
+
+  /* --- Cuadro 3: por bodega --- */
+  const byBodega = summarizeByBucket(base, r => r.BODEGA || "(sin bodega)", k => k);
+  const tbody3 = document.getElementById("tbl-resumen-bodega-body");
+  tbody3.innerHTML = "";
+  byBodega.forEach((b, i) => {
+    tbody3.innerHTML += `<tr>
+      <td class="py-space-sm px-space-md text-center">${i + 1}</td>
+      <td class="py-space-sm px-space-md font-semibold">${b.label}</td>
+      <td class="py-space-sm px-space-md text-right">${b.solicitados.toLocaleString("es-PE")}</td>
+      <td class="py-space-sm px-space-md text-right text-error font-semibold">${b.faltante.toLocaleString("es-PE")}</td>
+      <td class="py-space-sm px-space-md text-right text-secondary font-semibold">${b.sobrante.toLocaleString("es-PE")}</td>
+      <td class="py-space-sm px-space-md text-right text-amber-600 font-semibold">${b.malestado.toLocaleString("es-PE")}</td>
+      <td class="py-space-sm px-space-md text-right font-bold ${b.pctCumpl < 95 ? "text-error" : "text-on-tertiary-container"}">${b.pctCumpl.toFixed(2)}%</td>
+    </tr>`;
+  });
+
+  /* --- Cuadro 4: veredictos por mes (sobre las incidencias reportadas, estatus ORIGINAL) --- */
+  const incidences = base.filter(r => TIPOS_INCIDENCIA.includes(estatusOf(r)));
+  const byMonthVer = {};
+  incidences.forEach(r => {
+    const mk = monthBucketKey(r);
+    if (mk === null) return;
+    if (!byMonthVer[mk]) byMonthVer[mk] = [];
+    byMonthVer[mk].push(r);
+  });
+  const tbody4 = document.getElementById("tbl-resumen-veredicto-body");
+  tbody4.innerHTML = "";
+  Object.keys(byMonthVer).sort().forEach((mk, i) => {
+    const rows = byMonthVer[mk];
+    let procede = 0, noProcede = 0, sinResolver = 0;
+    rows.forEach(r => {
+      const v = (r.VEREDICTO || "").trim();
+      if (!VEREDICTOS_VALIDOS.includes(v)) sinResolver++;
+      else if (v === "Conforme") noProcede++;
+      else procede++;
+    });
+    tbody4.innerHTML += `<tr>
+      <td class="py-space-sm px-space-md text-center">${i + 1}</td>
+      <td class="py-space-sm px-space-md font-semibold">${monthBucketLabel(mk)}</td>
+      <td class="py-space-sm px-space-md text-right">${rows.length.toLocaleString("es-PE")}</td>
+      <td class="py-space-sm px-space-md text-right text-error font-semibold">${procede.toLocaleString("es-PE")}</td>
+      <td class="py-space-sm px-space-md text-right text-on-tertiary-container font-semibold">${noProcede.toLocaleString("es-PE")}</td>
+      <td class="py-space-sm px-space-md text-right text-outline font-semibold">${sinResolver.toLocaleString("es-PE")}</td>
+    </tr>`;
+  });
+
+  // Guardado para exportar a Excel con los mismos datos ya calculados
+  LAST_RESUMEN = { monthly, byBodega, veredictoByMonth: Object.keys(byMonthVer).sort().map(mk => {
+    const rows = byMonthVer[mk];
+    let procede = 0, noProcede = 0, sinResolver = 0;
+    rows.forEach(r => {
+      const v = (r.VEREDICTO || "").trim();
+      if (!VEREDICTOS_VALIDOS.includes(v)) sinResolver++;
+      else if (v === "Conforme") noProcede++;
+      else procede++;
+    });
+    return { label: monthBucketLabel(mk), total: rows.length, procede, noProcede, sinResolver };
+  }) };
+}
+
+let LAST_RESUMEN = { monthly: [], byBodega: [], veredictoByMonth: [] };
+
+function exportResumenXLSX() {
+  if (!window.XLSX) { alert("La librería de Excel no cargó. Verifica tu conexión a internet."); return; }
+  const wb = XLSX.utils.book_new();
+
+  const ws1 = XLSX.utils.json_to_sheet(LAST_RESUMEN.monthly.map(m => ({
+    "Mes": m.label, "Pedidos Solicitados": m.solicitados, "Incidencia": m.incidencia, "% Cumplimiento": m.pctCumpl.toFixed(2) + "%"
+  })));
+  XLSX.utils.book_append_sheet(wb, ws1, "Resumen Mensual");
+
+  const ws2 = XLSX.utils.json_to_sheet(LAST_RESUMEN.monthly.map(m => ({
+    "Mes": m.label, "Pedidos Solicitados": m.solicitados, "Faltante": m.faltante, "Sobrante": m.sobrante, "Mal Estado": m.malestado, "% Cumplimiento": m.pctCumpl.toFixed(2) + "%"
+  })));
+  XLSX.utils.book_append_sheet(wb, ws2, "Por Tipo Incidencia");
+
+  const ws3 = XLSX.utils.json_to_sheet(LAST_RESUMEN.byBodega.map(b => ({
+    "Bodega": b.label, "Pedidos Solicitados": b.solicitados, "Faltante": b.faltante, "Sobrante": b.sobrante, "Mal Estado": b.malestado, "% Cumplimiento": b.pctCumpl.toFixed(2) + "%"
+  })));
+  XLSX.utils.book_append_sheet(wb, ws3, "Por Bodega");
+
+  const ws4 = XLSX.utils.json_to_sheet(LAST_RESUMEN.veredictoByMonth.map(v => ({
+    "Mes": v.label, "Incidencias Reportadas": v.total, "Proceden": v.procede, "No Proceden": v.noProcede, "Sin Resolver": v.sinResolver
+  })));
+  XLSX.utils.book_append_sheet(wb, ws4, "Veredictos por Mes");
+
+  XLSX.writeFile(wb, `OTIF_Kamill_CuadrosResumen_${Date.now()}.xlsx`);
+  showToast("Descarga lista", "Cuadros Resumen exportados a Excel (4 hojas).");
+}
+document.getElementById("res-export-xlsx-btn").addEventListener("click", exportResumenXLSX);
+
 /* ---------- Cambio de pestañas (vistas) ---------- */
 function switchView(viewId) {
   if (!viewId) {
@@ -2085,6 +2361,7 @@ function switchView(viewId) {
       (active ? "bg-primary-container text-on-primary font-bold" : "font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface");
   });
   if (viewId === "view-incidencias") renderIncidencias();
+  if (viewId === "view-resumen") renderCuadrosResumen();
 }
 document.querySelectorAll(".nav-link").forEach(a => {
   a.addEventListener("click", (e) => { e.preventDefault(); switchView(a.dataset.view); });
